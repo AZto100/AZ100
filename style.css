@@ -1,0 +1,150 @@
+html, body {
+
+width: 100%;
+height: 100%;
+
+}
+#mainParent {
+
+background-color: #F1FAFE;
+width: 100%;
+height: 100%;
+
+}
+* {
+
+margin: 0;
+
+}
+#div.mainParent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 3px solid red;
+}
+
+#div.b {
+  position: absolute;
+  left: auto;
+  width: 100px;
+  height: 120px;
+  border: 3px solid blue;
+} 
+
+#div.c {
+  position: absolute;
+  left: 150px;
+  width: 200px;
+  height: 120px;
+  border: 3px solid green;
+} 
+#wrapper2 {
+    border: 1px solid blue;
+}
+#div1 {
+    display: inline-block;
+    width:50%;
+    height:50%;
+}
+#div2 {
+    vertical-align:top;
+    display: inline-block;
+    width:45%;
+    height:50%;
+}
+#wrapper {
+  display: flex;
+  border: 1px solid black;
+}
+#first {
+    border: 1px solid red;
+}
+#second {
+    border: 1px solid green;
+}
+#centerDiv {
+    margin-left: auto;
+    margin-right: auto;
+}
+#leftDiv {
+    margin-left: 0;
+    margin-right: auto;
+}
+#rightDiv {
+    margin-right: 0;
+    margin-left: auto;
+}
+
+
+/*Main Data Table */
+.mainTable{
+	margin-top: 10px;
+}
+#table{
+	margin: 5px auto;
+}
+table tr:not(:first-child){
+	cursor: pointer;
+	transition: all .25s ease-in-out;
+}
+table tr:not(:first-child):hover{
+	background-color: #ddd;
+}
+
+table{
+    width: 50%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    text-align: right;
+}
+
+tr:nth-child(odd){
+    width: 10%;
+    background-color: lightgray;
+    overflow: hidden;
+}
+
+/*Data Update Button */
+.updateBtn{
+	text-align: center;
+}
+.updateBtn button{
+	background-color: red;
+	padding: 5px 10px;
+	border: 1px solid black;
+	color: white;
+	margin: 10px 0;
+	border-radius: 5px;
+}
+.updateBtn button:hover{
+	background: lightgray;
+	color: black;
+	transition: .5s;
+}
+
+/*Data Update Table*/
+.editTable{
+	display: none;
+	padding-top: 20px;
+	margin: 0 auto;
+}
+.left{
+	float: left;
+}
+.right{
+	float: right;
+}
+.editRowBtn{
+	background-color: #0DC143;
+	color: white;
+	border: 1px solid black;
+	padding: 5px 10px;
+	border-radius: 5px;
+}
+.editRowBtn:hover{
+	background-color: lightgray;
+	color: black;
+	transition: .5s;
+}
+canvas {outline: 1px solid red;}
+

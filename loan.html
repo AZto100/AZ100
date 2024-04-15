@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>LOAN: Accounting Zero to 100</title>
+        <meta charset="windows-1252">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+
+        <!-- Link CSS -->
+        <link rel="stylesheet" href="styleNew.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+        
+        window.onload = function() {
+      loadVar();
+   }
+  function loadVar(){
+window.p = document.getElementById("loan").value;
+console.log(p);
+        window.irate = document.getElementById("irate").value/100/12;
+        console.log(irate);
+        window.months = document.getElementById("months").value;
+        console.log(months);
+        window.iirate = 1+irate;
+        console.log(iirate);
+
+
+        window.ctx = document.getElementById('myChart1');
+  window.ctx2 = document.getElementById('myChart2');
+  window.updateChart1 = new Chart(ctx, {type: 'bar'});
+  window.updateChart2 = new Chart(ctx2, {type: 'bar'});
+  } 
+
+  function loadDep(){
+    
+        p = document.getElementById("loan").value;
+        if(p < 1)alert("Your loan must be positive.");
+        irate = document.getElementById("irate").value/100/12;
+        if(irate < 0)alert("Your rate must be positive");
+        months = document.getElementById("months").value;
+        iirate = 1+irate;
+        
+  }
+  var A = 0;
+      function showDep1(){
+        loadDep();
+        A = p*(irate)/(1-1/Math.pow(iirate,months));
+        var erate = (Math.pow(irate+1,12)-1)*100;
+console.log(p+" p "+iirate + " iirate " + irate +" irate " + Math.pow(irate,months)+ " months" +months);
+console.log(Math.pow(3,2))
+        
+       
+              document.getElementById("yearlyDep").innerHTML = "The monthly installment is R" +Number(A).toFixed(2) + " at a effective yearly rate (if compounded monthly) of " + Number(erate).toFixed(2) +"%";
+              var interest = [];
+              var capital = [];
+              var monthtograph = [];
+              var pp = p;
+    for(var i = 1;i<months;i++){
+      interest[i] = pp*irate;
+      capital[i] = A - interest[i];
+      monthtograph[i] = i;
+      pp = pp - interest[i];
+    }
+              graphDep(monthtograph,interest,capital);
+}
+ 
+function graphDep(monthtograph,interest,capital){
+          var x = document.getElementById("showAnswer");
+          x.style.display = "block";
+  
+  updateChart1.destroy();
+  updateChart1 = new Chart(ctx, {type: 'bar'});
+  updateChart1.destroy();
+
+  updateChart1 = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: monthtograph,
+      datasets: [{
+        label: 'Interest per month',
+        data: interest,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });//end of mychart1
+    updateChart2.destroy();
+  updateChart2 = new Chart(ctx2, {type: 'bar'});
+  updateChart2.destroy();
+
+  updateChart2 = new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels: monthtograph,
+      datasets: [{
+        label: 'Capital per month',
+        data: capital,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });//end of mychart1
+  
+}
+  
+        
+      </script>
+<body>
+  <div style = "background-color:rgb(255,230,200);  id="div3">
+  <H3 style="background-color:rgb(232,232,232); color:#60223b; ">.    The values with * are required for the loan calculation. </H3>
+  *Loan amount: <input type="text" class="resizedTextbox"  id="loan">
+  *Months to pay back: <input type="text" class="resizedTextbox"  id="months">
+  *Nominal Lending rate/year (10 for 10%): <input type="text" class="resizedTextbox"  id="irate">%<br><br>
+
+<button onclick="showDep1()" class="editRowBtnDep" id = "showHide2">Calculate equal payments</button><br>
+
+
+      <div style = "background-color:rgb(255,230,200);" id="yearlyDep"></div>
+      <div id="parentDep" style="background-color:rgb(232,232,232); color:#60223b;">
+<div id="showAnswer" style="background-color:rgb(232,232,232); color:#60223b;">
+  <div>
+  <canvas id="myChart1"></canvas>
+</div>
+</div>
+<div id="showDep2">
+  <div>
+  <canvas id="myChart2"></canvas>
+</div>
+</div>
+</div><!--end of parentRatios-->
+</div>
+
+    </body>
+  
+  
+
+
+
+
+ 
+</html>

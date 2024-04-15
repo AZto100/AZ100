@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>LEDGER: Accounting Zero to 100</title>
+        <meta charset="windows-1252">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+
+        <!-- Link CSS -->
+        <link rel="stylesheet" href="styleNew.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="./js/tableUpdate.js"></script>
+        <script>
+        
+        window.onload = function() {
+      loadVar();
+   }
+  function loadVar(){
+window.Ledger = document.getElementById("Ledger");
+  } 
+
+  
+        
+      </script>
+<body>
+  <div style = "background-color:rgb(255,230,200);  id="div3">
+  *Account ledger:<select class="resizedTextbox" name="LAccounts" id="Ledger" >
+          <option value="Bank">Bank</option>
+      </select><br><br>
+
+<button onclick="ledger()" class="editRowBtnDep" id = "showHide2">Show the ledger</button><br>
+
+
+      <div style="background-color:rgb(232,232,232); border: 5px solid #8c979a">
+<h3 style="background-color:rgb(232,232,232); color:#60223b;"> Ledger for the account.</h3><br>
+<!-- (C) GENERATE HTML TABLE HERE 
+filled in js by -->
+<table id="Ledger"></table>
+</form>
+        </div> 
+  <div>
+  <canvas id="myChart1"></canvas>
+</div>
+</div>
+<div id="showDep2">
+  <div>
+  <canvas id="myChart2"></canvas>
+</div>
+</div>
+</div><!--end of parentRatios-->
+</div>
+
+    </body>
+  
+  
+
+
+
+
+ 
+</html>

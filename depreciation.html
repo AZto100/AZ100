@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Depreciation</title>
+        <meta charset="windows-1252">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+
+        <!-- Link CSS -->
+        <link rel="stylesheet" href="styleNew.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+        
+        window.onload = function() {
+      loadVar();
+   }
+  function loadVar(){
+window.price = document.getElementById("price").value*1000;
+        window.salvage = document.getElementById("salvage").value*1000;
+        window.years = document.getElementById("years").value;
+        window.rate = document.getElementById("rate").value/100;
+
+        window.ctx = document.getElementById('myChart1');
+  window.ctx2 = document.getElementById('myChart2');
+  window.updateChart1 = new Chart(ctx, {type: 'bar'});
+  window.updateChart2 = new Chart(ctx2, {type: 'bar'});
+  } 
+
+  function loadDep(){
+    
+        price = document.getElementById("price").value*1000;
+        if(price < 1)alert("Your purchace price must be positive.");
+        salvage = document.getElementById("salvage").value*1000;
+        if(salvage < -1)alert("Your salvage income must be 0 or positive");
+        years = document.getElementById("years").value;
+        rate = document.getElementById("rate").value/100;
+        
+  }
+      function showDep1(){
+        loadDep();
+        if(years < 3)alert("Your years to depreciate must be 3 or more.");
+        var depreciation = (price-salvage)/years;
+        var dataDep =[];
+ for(l=0;l<years;l++){
+   dataDep[l] = depreciation/1000;
+ }
+ var dataDep2 =[];
+ var NPV = 33;
+ console.log(NPV);
+ for(l=0;l<years;l++){
+   var ratio = Math.pow((1+rate),l);
+   dataDep2[l] = dataDep[l]/ratio;
+   NPV = NPV + dataDep2[l];
+ }
+              document.getElementById("yearlyDep").innerHTML = "The yearly depreciation is R" +Number(dataDep[0]).toFixed(2)+ " and the total Net Present Value is R" + Number(NPV).toFixed(2);
+              graphDep(dataDep,dataDep2);
+      }
+      function showDep2(){
+        loadDep();
+        var depreciation = (price-salvage);
+        var dataDep =[];
+        dataDep[0] = depreciation*0.4/1000
+ for(l=1;l<4;l++){
+   dataDep[l] = depreciation*0.2/1000;
+ }
+ var dataDep2 =[];
+ var NPV = 0;
+ for(l=0;l<4;l++){
+   var ratio = Math.pow((1+rate),l);
+   dataDep2[l] = dataDep[l]/ratio;
+   NPV = NPV + dataDep2[l];
+ }
+               document.getElementById("yearlyDep").innerHTML = "The year 1 depreciation is R" +Number(dataDep[0]).toFixed(2)+ " and years 2 to 4 is R" +Number(dataDep[1]).toFixed(2) +". The total Net Present Value is R" + Number(NPV).toFixed(2);
+              graphDep(dataDep,dataDep2);
+      }
+ function showDep3(){
+        loadDep();
+        var depreciation = (price-salvage);
+        var dataDep =[];
+        dataDep[0] = depreciation*0.5/1000
+        dataDep[1] = depreciation*0.3/1000
+        dataDep[2] = depreciation*0.2/1000
+ 
+ var dataDep2 =[];
+ var NPV = 0;
+ for(l=0;l<3;l++){
+   var ratio = Math.pow((1+rate),l);
+   dataDep2[l] = dataDep[l]/ratio;
+   NPV = NPV + dataDep2[l];
+ }
+              document.getElementById("yearlyDep").innerHTML = "The year 1 depreciation is R" +Number(dataDep[0]).toFixed(2)+ " and year 2 is R" +Number(dataDep[1]).toFixed(2) + " and year 3 is R" + Number(dataDep[2]).toFixed(2)+". The total Net Present Value is R" + Number(NPV).toFixed(2);
+              graphDep(dataDep,dataDep2);
+      }
+      function showDep4(){
+        loadDep();
+        var dataDep =[];
+        var dataDep2 =[];
+        var depreciation = (price-salvage);
+        dataDep[0] = depreciation*1.25/1000;
+        dataDep2[0] =dataDep;
+        dataDep[1] = 0;
+        dataDep2[1] =0;
+        var NPV = dataDep[0];
+              document.getElementById("yearlyDep").innerHTML = "The first year depreciation is R" +Number(dataDep[0]).toFixed(2)+ " and the total Net Present Value is R" + Number(NPV).toFixed(2) +". To be clear, since this depreciation is allowed in the current year, it is similar to an expense in concept.";
+              graphDep(dataDep,dataDep2);
+      }
+function graphDep(dataDep,dataDep2){
+          var x = document.getElementById("showAnswer");
+          x.style.display = "block";
+  
+  updateChart1.destroy();
+  updateChart1 = new Chart(ctx, {type: 'bar'});
+  updateChart1.destroy();
+
+  updateChart1 = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5', 'Year 6','Year 7'],
+      datasets: [{
+        label: 'Depreciation per year',
+        data: dataDep,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });//end of mychart1
+    updateChart2.destroy();
+  updateChart2 = new Chart(ctx2, {type: 'bar'});
+  updateChart2.destroy();
+
+  updateChart2 = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5', 'Year 6','Year 7'],
+      datasets: [{
+        label: 'Depreciation per year in Current value',
+        data: dataDep2,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });//end of mychart1
+  
+}
+  
+        
+      </script>
+<body>
+  <div style = "background-color:rgb(255,230,200);  id="div3">
+  <H3 style="background-color:rgb(232,232,232); color:#60223b; ">In short, Depreciation on tangible assets and Amortization on non-tangibles are seen as expenses to the company. Because Profits = Revenue - Expenses, this allows a company to pay less tax and make a fair profit. The reason for depreciation is that a company may not record the Cost of an asset directly as an Expense when they buy the asset. They record the lowering of value over time as depreciation according to fixed rules. </H3>
+  <H3 style="background-color:rgb(232,232,232); color:#60223b; ">The values with ** are required for all the methods below. Additionally, the values with * are required when using that specific method.</H3>
+  **Purchase price: <input type="text" class="resizedTextbox"  id="price">
+  **Salvage income: <input type="text" class="resizedTextbox"  id="salvage">
+  **Discount rate (10 for 10%): <input type="text" class="resizedTextbox"  id="rate">%<br><br>
+
+<button onclick="showDep1()" class="editRowBtnDep" id = "showHide2">Straight line method</button>*Depreciation period in years: <input type="text" class="resizedTextbox" id="years"><br>
+
+<button onclick="showDep2()" class="editRowBtnDep" id = "showHide22">New & unused manufacturing machinery</button>Depreciation of new or unused manufacturing machines allow 40% in year 1, and 20% for years 2, 3 and 4. <br>
+      
+      <button onclick="showDep3()" class="editRowBtnDep" id = "showHide23">Farming and biodiesel machinery</button>Machinery and articles used in farming, production of biodiesel or bioethanol allow 50% in year 1, 30% in year 2 and 20% in year 3. <br>
+      
+      <button onclick="showDep4()" class="editRowBtnDep" id = "showHide24">Renewable energy projects</button>Renewable energy projects allow 125% in year 1 (Temporary measure due to ESKOM loadshedding). <br><br>
+      <div style = "background-color:rgb(255,230,200);" id="yearlyDep"></div>
+      <div id="parentDep" style="background-color:rgb(232,232,232); color:#60223b;">
+<div id="showAnswer" style="background-color:rgb(232,232,232); color:#60223b;">
+  <div>
+  <canvas id="myChart1"></canvas>
+</div>
+</div>
+<div id="showDep2">
+  <div>
+  <canvas id="myChart2"></canvas>
+</div>
+</div>
+</div><!--end of parentRatios-->
+</div>
+<H3 style="background-color:rgb(232,232,232); color:#60223b; ">As may be seen below, the complete picture of depreciation can be complex and typically accountants do not rely on memory to calculate these values. For our purposes, the understanding of the three most used methods are enough. For real life depreciation you should always use the most recently updated rules and methods that apply to the specific tax period.</H3></style>
+<a href="https://taxsummaries.pwc.com/south-africa/corporate/deductions">Visit PriceWaterhouseCooper</a>
+ 
+ <p> Depreciation and depletion:<br>
+A depreciation (wear and tear) allowance may be deducted on movable assets used for the purpose of trade. There are no statutory provisions relating to rates of wear and tear, but the SARS has published a table of periods over which the assets may be written off. The rates of wear and tear, based on the cash cost, are calculated either according to the straight-line or diminishing-balance method.<br>
+
+New and unused machinery used in a process of manufacture or in a similar process is depreciable at the rate of 40% in the first year of use and 20% in the three following years. If the machinery is not new and unused, an allowance of 20% per year over five years is available.<br>
+
+An accelerated depreciation allowance (50% in the first year of use, 30% in the second, and 20% in the third year) applies to the machinery and articles used in farming, production of biodiesel or bioethanol, and production of energy from certain renewable sources. This allowance has been temporarily expanded to allow taxpayers to claim a 125% deduction in the first year for all renewable energy projects. The expanded incentive will only be available for investments brought into use for the first time between 1 March 2023 and 28 February 2025.<br>
+
+Specific allowances are also provided for pipelines, transmission lines, railway lines, rolling stock, ships, mining operations, and other qualifying industrial assets.<br>
+
+Buildings and other permanent structures may not be depreciated, apart from an annual allowance for each of the following:<br>
+
+Buildings used in a process of manufacture or a process similar to a process of manufacture: For buildings erected before 1 January 1989, a 2% rate applies per year. For buildings erected after 1 January 1989, a 5% rate applies.<br>
+Hotel buildings: For buildings built prior to 4 June 1988, a 2% rate applies per year. For hotel buildings erected after 4 June 1988, a 5% rate applies.<br> Improvements within the existing building framework that commenced on or after 17 March 1993 are depreciated at the rate of 20%.<br>
+Agricultural cooperative storage buildings: For buildings built prior to 1 January 1989, a 2% rate applies per year. For buildings erected on or after 1 January 1989, a 5% rate applies.<br>
+Housing projects of not less than five units: Housing projects of not less than five units of residential accommodation, which consist of more than one room and the erection of which commenced on or after 1 April 1982 and before 21 October 2008, are subject to a 2% rate of depreciation. After 21 October 2008, an allowance of 5% is available on this type of property. The 5% depreciation rate is available to the taxpayer provided that the unit is used by the taxpayer solely for trade purposes, the unit is situated in South Africa, and the taxpayer owns at least five units in South Africa used for the purposes of trade. An additional allowance is available for a low-cost residential unit.<br>
+Buildings in urban development zones: Improvements to an existing building in an urban development zone, where the existing structural or exterior framework is preserved and brought into use before 31 March 2014, qualify for an accelerated allowance of 20% per year. Buildings that are erected, extended, or added to in an urban development zone on or after 21 October 2008 and which are not covered by the first mentioned allowance qualify for a 20% allowance in the first year and an 8% allowance in the following ten years. As of 21 October 2008, new and unused low-income residential units located in urban development zone demarcations are subject to an additional annual depreciation allowance. The rate is 25% in the first year, 13% in the succeeding five years, and 10% in the year following the last year. Improvements are subject to a depreciation allowance of 25% over a period of four years. The allowance will no longer be available if a building ceases to be used solely for the purposes of trade, was disposed of in a previous year of assessment, or was brought into use after 31 March 2025.<br>
+Commercial buildings: The cost to the taxpayer of any new and unused building owned by the taxpayer, or any new and unused improvement to any building owned by the taxpayer, if that building or improvement wholly or mainly is used by the taxpayer for trade purposes, other than the provision of residential accommodation, is subject to a 5% rate of depreciation. This allowance is applicable to any building or improvement contracted for on or after 1 April 2007 and the construction of which commenced on or after 1 April 2007.<br>
+An allowance for assets disposed of or scrapped during a year of assessment is determined by reference to the cost less allowances already granted and the proceeds on disposal (if any). Recoupments of allowances granted are taxable where disposal proceeds exceed the tax basis at the time of sale. Such recoupments cannot exceed the cost of the asset. Proceeds above cost will be taxed as a capital gain.<br>
+
+Book depreciation does not need to be consistent with tax depreciation.<br>
+
+No cost or percentage depletion is available for natural resources.<br></p>
+    </body>
+  
+  
+
+
+
+
+ 
+</html>

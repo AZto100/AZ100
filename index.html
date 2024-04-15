@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  
+    <head>
+        <title>Accounting Zero to 100</title>
+        <meta charset="windows-1252">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+
+        <!-- Link CSS & JS -->
+        
+        <link rel="stylesheet" href="styleNew.css">
+        <script src="js/jquery.min.js"></script>
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+ <script src="js/jspdf.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="js/FileSaver.js"></script>
+        <script src="js/basic1.js"></script>
+    <script src="js/papaparse.min.js"></script>
+
+        <!-- (A) JS -->
+<script defer src="js/csv.min.js"></script>
+<script defer src="js/csv.min.backup.js"></script>
+<script> 
+var wh = window.innerWidth;
+var wh2 = window.innerHeight;
+var wwh = Math.floor(wh/2)+4;
+var wwh2 = Math.floor(wh2/2.3);
+// Launch full screen
+function on() {
+  document.getElementById("overlay").style.display = "block";
+}
+
+function off() {
+  document.getElementById("overlay").style.display = "none";
+}
+function leave() {
+if (confirm("Ok to save your transactions, or Calcel to not save...") == true) {
+  saveTransactions();
+} else {
+  console.log("Your file was not saved");
+}
+window.onbeforeunload = function() { leave(); }
+}
+</script>
+<script defer src="js/U.js"></script>
+    </head>
+    <body>
+               <!-- (B) USER -->
+               <!-- (C) PICK CSV FILE -->
+
+        <label class="custom-file-upload">
+    <h3 style="background-color:rgb(230,230,230); color:#60223b;">
+   <button id="show-image-button">About</button>
+   <div id="overlay" ><img id="my-image" src="assets/90plusworks2023.png"></div>
+   
+   <script>
+      const showImageButton = document.getElementById("show-image-button");
+      const myImage = document.getElementById("my-image"); 
+      showImageButton.addEventListener("mouseover", () => { 
+         on(); 
+      });
+      showImageButton.addEventListener("mouseout", () => { 
+         off(); 
+      });
+
+
+   </script>   
+Load a file : <input type="file" accept=".csv" id="loadTransactions" class="editRowBtn"/> Enter new transactions below right: - Save current transactions:<button  onclick="saveTransactions();" class="editRowBtn">Save Transactions</button><br>
+<button class="editRowBtn" onclick="window.open('./depreciation.html' + location.search)">Depreciation</button></button>
+<button class="editRowBtn" onclick="window.open('./loan.html'+ location.search)">Loan</button>
+<button class="editRowBtn" onclick="window.open('./tax.html'+ location.search)">Tax</button>
+<button class="editRowBtn" onclick="window.open('./Notes.html'+ location.search)">Notes</button>
+    
+    
+
+*E-mail: <input type="text" class="resizedTextbox"  id="email">
+*Student number: <input type="password" class="resizedTextbox" id="password">
+Course: <input type="text" class="resizedTextbox"  id="Course" value="EE212-2024">
+Example:<select class="Textbox" name="examples" id="ExampleB">
+        <option value="Owners Equity">Bank</option>
+      </select><br>
+ 
+
+</h3></label>
+
+      <div style = "background-color:rgb(232,232,232);" id="wrapper2">
+        <div style = "background-color:rgb(232,232,232); width: wwh + "px";" id="div1">
+          <h3 style="background-color:rgb(232,232,232); color:#60223b;">Statement of financial position of :
+          <input style="background-color:rgb(232,240,240); color:#60223b; " type="text"  id="Company" value="Company" input size="10">on
+          <input class="smallTextbox" style="background-color:rgb(232,240,240); color:#60223b; " id="date" value="Date" input size="10">
+          <button type="button" onclick="exportPdfA()" class="pdfBtn"><b>PDF&#8595;</b></button></h3>
+          <table   id="balanceSheet"></table>
+        <table style="border: 5px solid #60223b"  id="assets"></table>
+        <table style="border: 5px solid #8c979a"  id="liabilities"></table>
+        <table style="border: 5px solid #967140"  id="owners"></table>
+        <button onclick="showLedger()" class="editRowBtn" id = "showHide2">Show T-Account Ledger(select an account)</button><select class="resizedTextbox" name="TAccount" id="TAcc" >
+          <option value="Bank">Bank</option>
+      </select>
+        <button type="button" onclick="exportPdfT()" class="pdfBtn"><b>PDF&#8595;</b></button>
+        <table style="border: 5px solid #60223b"  id="Ledger"></table>
+        
+        
+                    <div style="background-color:rgb(232,232,232); border: 5px solid #8c979a">
+        
+<div id="showLedger" class = childLedger >
+  <div>
+  
+</div>
+</div>
+
+
+        </div> 
+       
+
+        
+        </div>
+    <div style = "background-color:rgb(232,232,232); width: wwh + "px";" id="div2">
+      
+        <button onclick="showRatios()" class="editRowBtn" id = "showHide1">Show ratios</button>&thinsp;Months:<select class="smallTextbox" name="Mon" id="Mon" onchange = showR1();></select>&thinsp;<button onclick="backwardEC()" class="BtnG" id = "BEC">&#8592</button><button onclick="showExe()" class="editRowBtn" id = "showHideExe">Exercise</button><button onclick="forwardEC()" class="BtnGF" id = "FEC">&#8594</button>&thinsp;<button onclick="endPeriod()" class="editRowBtn" id = "endPeriod">End the current period</button>
+      
+      
+        <button  onclick="editRow(0);" class="editRowBtn" style="border: 4px solid #292;" ><b>Enter Transaction values.</b> *required values!</button><br>
+        
+<div id="parentRatios" style="border: 5px solid #967140; width: 99%;">
+<div id="showRatios1" class = childRatios >
+  <div>
+  <canvas id="myRatio1"></canvas>
+</div>
+</div>
+<div id="showRatios2" class = childRatios>
+  <div>
+  <canvas id="myRatio2"></canvas>
+</div>
+</div>
+</div><!--end of parentRatios-->
+
+<div id="showExe1" >
+  <p>Month 1: 5 January 2024: 
+Startup Capital Investment by Susan to the amount of R500 000 for an Equity Stake of 50% and Jamey to the amount of R200 000 for an Equity Stake of 20% is paid to the company bank account.</p>
+</div>
+
+         <span id="CurrentIndex">
+            Index: 1 </span>
+            <span id="Date">
+            & Date: </span>
+            
+        : *Transaction Amount:<input class="resizedTextbox" type="text" name="Amount" id="Amount">
+        
+<!-- (C) GENERATE HTML SELECT HERE 
+filled in js by -->
+      *Debit:<select class="resizedTextbox" name="DAccounts" id="Debit" >
+          <option value="Bank">Bank</option>
+      </select>
+       *Credit:<select class="resizedTextbox" name="CAccounts" id="Credit">
+        <option value="Bank">Bank</option>
+      </select><br>
+            *Description:<input  class="resizedTextbox" type="text" name="Description" id="Description">
+            Class:<input class="resizedTextbox" type="text" name="Class" id="Class">
+        Reference:<input class="resizedTextbox" type="text" name="Refe" id="Refe">
+        Source:<input class="resizedTextbox" type="text" name="Source" id="Source">
+            </form>
+           
+            <div style="background-color:rgb(232,232,232); border: 5px solid #8c979a">
+<h3 style="background-color:rgb(232,232,232); color:#60223b;"> General Journal: (Click a row to update values or on source for Documents.)
+<button type="button" class="pdfBtn" onclick="exportPdfGJ()" ><b>PDF&#8595;</b></button></h3><br>
+<!-- (C) GENERATE HTML TABLE HERE 
+filled in js by -->
+
+<div id="GeneralJournaldiv">
+  <table id="GeneralJournal"></table>
+</div>
+<h4 style="border: 5px solid #967140; background-color:rgb(232,232,232); color:#60223b; ">Income Statement for the period: 
+      &thinsp;<input style="background-color:rgb(232,232,232); color:#60223b; " id="period" value="Period" input size="10"></input>
+      <button type="button" class="pdfBtn" onclick="exportPdfI()" ><b>PDF&#8595;</b></button>
+      &thinsp;<button onclick="showIndex()" class="editRowBtn" id = "showIndex">Show only to Index</button>&thinsp;Index
+      <input type ="number" class="smallTextbox" style="background-color:rgb(232,232,232); color:#60223b; " id="showIndx"></input></h4>
+
+<table  id="incomeStatement"></table>
+
+
+ <table style="border: 5px solid #60223b"  id="cashState"></table>
+        </div> 
+        
+
+    </div>
+</div>
+
+
+</div>
+
+
+
+        <!-- link JavaScript -->
+        
+
+        
+
+</div>
+
+
+    </body>
+ 
+</html>
+
+

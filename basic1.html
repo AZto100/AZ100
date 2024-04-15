@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Accounting Zero to 100</title>
+        <meta charset="windows-1252">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+
+        <!-- Link CSS & JS -->
+        
+        <link rel="stylesheet" href="styleNew.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="js/FileSaver.js"></script>
+    <script src="js/papaparse.min.js"></script>
+    <script src="js/hash.js"></script>
+    <script src="js/saveTransactions.js"></script>
+        <!-- (A) JS -->
+<script defer src="js/generalLedger.js"></script>
+<script defer src="js/1b-read-csv.js"></script>
+<script defer src="js/csv.min.js"></script>
+<script defer src="js/csv.min.backup.js"></script>
+<script> 
+var wh = window.innerWidth;
+var wh2 = window.innerHeight;
+var wwh = Math.floor(wh/2)+4;
+var wwh2 = Math.floor(wh2/2.3);
+// Launch full screen
+function on() {
+  document.getElementById("overlay").style.display = "block";
+}
+
+function off() {
+  document.getElementById("overlay").style.display = "none";
+}
+function leave() 
+if (confirm("Ok to save your transactions, or Calcel to not save...") == true) {
+  saveTransactions();
+} else {
+  console.log("Your file was not saved");
+}
+window.onbeforeunload = function() { leave(); }
+ 
+</script>
+    </head>
+    <body>
+               <!-- (B) USER -->
+               <!-- (C) PICK CSV FILE -->
+
+        <label class="custom-file-upload">
+    <h3 style="background-color:rgb(230,230,230); color:#60223b;">
+   <button id="show-image-button">About</button>
+   <div id="overlay" ><img id="my-image" src="assets/90plusworks2023.png"></div>
+   
+   <script>
+      const showImageButton = document.getElementById("show-image-button");
+      const myImage = document.getElementById("my-image"); 
+      showImageButton.addEventListener("mouseover", () => { 
+         on(); 
+      });
+      showImageButton.addEventListener("mouseout", () => { 
+         off(); 
+      });
+   </script>   
+Load a file : <input type="file" accept=".csv" id="loadTransactions" class="editRowBtn"/> Or start entering your new transactions below right: - Or save transactions:<button  onclick="saveTransactions();" class="editRowBtn">Save Transactions</button>
+
+<button class="editRowBtn" onclick="window.open('./depreciation.html' + location.search)">Depreciation</button></button>
+<button class="editRowBtn" onclick="window.open('./loan.html'+ location.search)">Loan</button>
+<button class="editRowBtn" onclick="window.open('./tax.html'+ location.search)">Tax</button>
+    
+    
+    <br>
+E-mail: <input type="text" class="resizedTextbox"  id="email">
+Student number: <input type="password" class="resizedTextbox" id="password">
+Course: <input type="text" class="resizedTextbox"  id="Course" value="EE212-2024">
+Basic 1: <input type="text"   id="ExampleB" value="Basic Example 1">
+ 
+
+</h3></label>
+
+      <div style = "background-color:rgb(232,232,232);" id="wrapper2">
+        <div style = "background-color:rgb(232,232,232); width: wwh + "px";" id="div1">
+          <h3 style="background-color:rgb(232,232,232); color:#60223b;">Statement of financial position of :
+          <input style="background-color:rgb(232,240,240); color:#60223b; font-size: large;" type="text"  id="Company" value="Company-Name" input size="15">on
+          <input style="background-color:rgb(232,240,240); color:#60223b; font-size: large;" id="date" value="Date-of-statement" input size="15"></h3>
+          <table   id="balanceSheet"></table>
+        <table style="border: 5px solid #60223b"  id="assets"></table>
+        <table style="border: 5px solid #8c979a"  id="liabilities"></table>
+        <table style="border: 5px solid #967140"  id="owners"></table>
+
+        
+        </div>
+    <div style = "background-color:rgb(232,232,232); width: wwh + "px";" id="div2">
+      <h3 style="background-color:rgb(232,232,232); color:#60223b; ">Income (Profit & Loss) Statement for the period:
+      <input style="background-color:rgb(232,232,232); color:#60223b; font-size: large;" id="period" value="Period-of-statement"></h3>
+        <table style="border: 5px solid #967140" id="incomeStatement"></table>
+        <button onclick="showRatios()" class="editRowBtn" id = "showHide1">Show ratios</button><button onclick="endPeriod()" class="editRowBtn" id = "endPeriod">End the current period</button>
+        <button  onclick="editRow(0);" class="editRowBtn">Enter the Transaction values below. * are required values.</button><br>
+<div id="parentRatios">
+<div id="showRatios1" class = childRatios >
+  <div>
+  <canvas id="myChart1"></canvas>
+</div>
+</div>
+<div id="showRatios2" class = childRatios>
+  <div>
+  <canvas id="myChart2"></canvas>
+</div>
+</div>
+</div><!--end of parentRatios-->
+         <span id="CurrentIndex">
+            Index: 1 </span>
+            <span id="Date">
+            & Date: </span>
+        : *Transaction Amount:<input class="resizedTextbox" type="text" name="Amount" id="Amount" >
+        
+<!-- (C) GENERATE HTML SELECT HERE 
+filled in js by -->
+      *Debit:<select class="resizedTextbox" name="DAccounts" id="Debit" >
+          <option value="Bank">Bank</option>
+      </select>
+       *Credit:<select class="resizedTextbox" name="CAccounts" id="Credit">
+        <option value="Bank">Bank</option>
+      </select><br>
+            *Description:<input type="text" name="Description" id="Description">
+            Class:<input class="resizedTextbox" type="text" name="Class" id="Class" >
+        Reference:<input class="resizedTextbox" type="text" name="Refe" id="Refe" >
+        Source:<input class="resizedTextbox" type="text" name="Source" id="Source" >
+            
+           
+            <div style="background-color:rgb(232,232,232); border: 5px solid #8c979a">
+<h3 style="background-color:rgb(232,232,232); color:#60223b;"> General Journal: (Click a row to update values or on Descriptions for source.)</h3><br>
+<!-- (C) GENERATE HTML TABLE HERE 
+filled in js by -->
+<table id="GeneralJournal"></table>
+</form>
+        </div> 
+        
+
+    </div>
+</div>
+
+
+</div>
+<!--end::Form-->
+
+
+        <!-- link JavaScript -->
+        
+        <script src="js/tableUpdate.js"></script>
+        <script src="js/statementsAccountsB1.js"></script>
+        
+
+</div>
+
+
+    </body>
+ 
+</html>
+
+

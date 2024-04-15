@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  
+    <head>
+        <title>Accounting Zero to 100A Setup</title>
+        <meta charset="windows-1252">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+
+        <!-- Link CSS & JS -->
+        
+        <link rel="stylesheet" href="styleSelect.css">
+
+    </head>
+    <body>
+<div>
+  <div id="CurrentA" class="dropdown-check-list" tabindex="0">
+        <span class="selectAccounts">Select Current Asset Accounts:</span>
+        <ul id="items" class="items">
+            <li><input type="checkbox" />Cash Box</li>
+            <li><input type="checkbox" />Bank</li>
+            <li><input type="checkbox" />Cheque</li>
+            <li><input type="checkbox" />Savings</li>
+            <li><input type="checkbox" />Credit Card</li>
+            <li><input type="checkbox" />Raw Material 1</li>
+            <li><input type="checkbox" />Raw Material 2</li>
+            <li><input type="checkbox" />Raw Material 3</li>
+            <li><input type="checkbox" />Raw Material 4</li>
+            <li><input type="checkbox" />WIP 1</li>
+            <li><input type="checkbox" />WIP 2</li>
+            <li><input type="checkbox" />WIP 3</li>
+            <li><input type="checkbox" />WIP 4</li>
+            <li><input type="checkbox" />Trade Inventory 1</li>
+            <li><input type="checkbox" />Trade Inventory 2</li>
+            <li><input type="checkbox" />Trade Inventory 3</li>
+            <li><input type="checkbox" />Trade Inventory 4</li>
+            <li><input type="checkbox" />Prepaid Rent</li>
+            <li><input type="checkbox" />Prepaid Insurance</li>
+            <li><input type="checkbox" />Short Term Investments</li>
+            <li><input type="checkbox" />Accounts Receivable</li>
+        </ul>
+    </div>
+    <div id="NonCurrentA" class="dropdown-check-list" tabindex="0">
+        <span class="selectAccounts">Select Non accounts:</span>
+        <ul id="items" class="items">
+            <li><input type="checkbox" />Cash Box</li>
+            <li><input type="checkbox" />Bank</li>
+            <li><input type="checkbox" />Cheque</li>
+            <li><input type="checkbox" />Savings</li>
+            <li><input type="checkbox" />Credit Card</li>
+            <li><input type="checkbox" />Raw Material 1</li>
+            <li><input type="checkbox" />Raw Material 2</li>
+            <li><input type="checkbox" />Raw Material 3</li>
+            <li><input type="checkbox" />Raw Material 4</li>
+            <li><input type="checkbox" />WIP 1</li>
+            <li><input type="checkbox" />WIP 2</li>
+            <li><input type="checkbox" />WIP 3</li>
+            <li><input type="checkbox" />WIP 4</li>
+            <li><input type="checkbox" />Trade Inventory 1</li>
+            <li><input type="checkbox" />Trade Inventory 2</li>
+            <li><input type="checkbox" />Trade Inventory 3</li>
+            <li><input type="checkbox" />Trade Inventory 4</li>
+            <li><input type="checkbox" />Prepaid Rent</li>
+            <li><input type="checkbox" />Prepaid Insurance</li>
+            <li><input type="checkbox" />Short Term Investments</li>
+            <li><input type="checkbox" />Accounts Receivable</li>
+        </ul>
+    </div>
+  </div>  
+    <script>
+var checkList = document.getElementById('CurrentA');
+var items = document.getElementById('items');
+        checkList.getElementsByClassName('selectAccounts')[0].onclick = function (evt) {
+            if (items.classList.contains('visible')){
+                items.classList.remove('visible');
+                items.style.display = "none";
+            }
+            
+            else{
+                items.classList.add('visible');
+                items.style.display = "block";
+            }
+            
+            
+        }
+
+        items.onblur = function(evt) {
+            items.classList.remove('visible');
+        }
+        </script>
+ 
