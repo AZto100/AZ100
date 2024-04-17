@@ -13,3 +13,9 @@ var DebitCorr=['Bank','Bank','Land and Buildings','Land and Buildings','Raw Mate
 var CreditCorr=['Susan','Jamey','Bank','Long term loans','Bank','Bank','Bank','Raw Material','Bank','Bank','Raw Material','Raw Material','Raw Material','Bank','WIP Inventory','Sales or Revenues','Vat Payable','Merchandise+Trade inventory','Accounts Payable','Accounts Payable','Accounts Payable','Raw Material','Raw Material','Raw Material','Raw Material','Bank','WIP Inventory','Sales or Revenues','Vat Payable','Bank','Bank','Machinery Vehicles and Equipment','Bank','Input VAT','Vat Payable','Accounts Receivable','Accounts Receivable','Tax Payable'];
 
 var AmountCorr=[50000000,20000000,30000000,22000000,1000000,250000,400000,215217,13043478,1956522,695652,173913,347826,800009,2017400,6000000,900000,1210440,2000000,450000,600000,397826,1391304,347826,521739,1700000,3221739,11000000,1650000,25415,201667,92029,1220000,2569565,19565,6600000,990000,4338499];
+/*,Sales Revenue:
+Customer: Acme Corporation,Sales Order Number: 56789,Quantity Sold: 600 units,Sales Price: R20 per unit,Total Sales Revenue: R12 000,Month 3: March
+Raw Material Purchase:
+Supplier: DEF Components Ltd.,Invoice Number: 04567,Quantity: 1200 units of plastic, 300 units of electronic components,Total Cost: R6 000,WIP Inventory:
+Raw Materials Used: Plastic, Electronic Components,Quantity Used: 1000 units,Conversion Cost: R8 000,Depreciation Expense:
+Asset: Machinery and Equipment,Monthly Depreciation: R1,250]*/
