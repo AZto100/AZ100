@@ -15,7 +15,7 @@
  <script src="js/jspdf.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="js/FileSaver.js"></script>
-        <script src="js/week2.js"></script>
+        
     <script src="js/papaparse.min.js"></script>
 
         <!-- (A) JS -->
@@ -43,9 +43,10 @@ if (confirm("Ok to save your transactions, or Calcel to not save...") == true) {
 window.onbeforeunload = function() { leave(); }
 }
 </script>
-<script defer src="js/U.js"></script>
+<script defer src="js/A0to100.js"></script>
     </head>
     <body>
+      <script src="js/week2.js" id = "dynamic"></script>
                <!-- (B) USER -->
                <!-- (C) PICK CSV FILE -->
 
@@ -77,8 +78,8 @@ Load a file : <input type="file" accept=".csv" id="loadTransactions" class="edit
 *E-mail: <input type="text" class="resizedTextbox"  id="email">
 *Student number: <input type="password" class="resizedTextbox" id="password">
 Course: <input type="text" class="resizedTextbox"  id="Course" value="EE212-2024">
-Example:<select class="Textbox" name="examples" id="ExampleB">
-        <option value="Owners Equity">Bank</option>
+Example:<select class="Textbox" name="examples" id="ExampleB" onchange = "loadExampleFile(this.value)">
+        <option value="Basic"></option>
       </select><br>
  
 
@@ -104,17 +105,8 @@ Example:<select class="Textbox" name="examples" id="ExampleB">
                     <div style="background-color:rgb(232,232,232); border: 5px solid #8c979a">
         
 <div id="showLedger" class = childLedger >
-  <div>
-  
-</div>
-</div>
+<div></div></div></div></div>
 
-
-        </div> 
-       
-
-        
-        </div>
     <div style = "background-color:rgb(232,232,232); width: wwh + "px";" id="div2">
       
         <button onclick="showRatios()" class="editRowBtn" id = "showHide1">Show ratios</button>&thinsp;Months:<select class="smallTextbox" name="Mon" id="Mon" onchange = showR1();></select>&thinsp;<button onclick="backwardEC()" class="BtnG" id = "BEC">&#8592</button><button onclick="showExe()" class="editRowBtn" id = "showHideExe">Exercise</button><button onclick="forwardEC()" class="BtnGF" id = "FEC">&#8594</button>&thinsp;<button onclick="endPeriod()" class="editRowBtn" id = "endPeriod">End the current period</button>
@@ -126,12 +118,12 @@ Example:<select class="Textbox" name="examples" id="ExampleB">
 <div id="showRatios1" class = childRatios >
   <div>
   <canvas id="myRatio1"></canvas>
-</div>
+  </div>
 </div>
 <div id="showRatios2" class = childRatios>
   <div>
   <canvas id="myRatio2"></canvas>
-</div>
+  </div>
 </div>
 </div><!--end of parentRatios-->
 
@@ -173,7 +165,7 @@ filled in js by -->
 <h4 style="border: 5px solid #967140; background-color:rgb(232,232,232); color:#60223b; ">Income Statement for the period: 
       &thinsp;<input style="background-color:rgb(232,232,232); color:#60223b; " id="period" value="Period" input size="10"></input>
       <button type="button" class="pdfBtn" onclick="exportPdfI()" ><b>PDF&#8595;</b></button>
-      &thinsp;<button onclick="showIndex()" class="editRowBtn" id = "showIndex">Show only to Index</button>&thinsp;Index
+      &thinsp;<button onclick="showIndex()" class="editRowBtn" id = "showIndex">ALL statements only to Index</button>&thinsp;Index
       <input type ="number" class="smallTextbox" style="background-color:rgb(232,232,232); color:#60223b; " id="showIndx"></input></h4>
 
 <table  id="incomeStatement"></table>
@@ -198,7 +190,7 @@ filled in js by -->
 
 </div>
 
-
+<script src="js/week2.js" id = "remove"></script>
     </body>
  
 </html>
