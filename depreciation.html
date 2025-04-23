@@ -35,6 +35,13 @@ window.price = document.getElementById("price").value*1000;
         if(salvage < -1)alert("Your salvage income must be 0 or positive");
         years = document.getElementById("years").value;
         rate = document.getElementById("rate").value/100;
+        Ay1 = document.getElementById("Ayear1").value/100;
+        Ay2 = document.getElementById("Ayear2").value/100;
+        Ay3 = document.getElementById("Ayear3").value/100;
+        Ay4 = document.getElementById("Ayear4").value/100;
+        Ay5 = document.getElementById("Ayear5").value/100;
+        
+        Dy = document.getElementById("Dyear").value/100;
         
   }
       function showDep1(){
@@ -105,6 +112,55 @@ window.price = document.getElementById("price").value*1000;
               document.getElementById("yearlyDep").innerHTML = "The first year depreciation is R" +Number(dataDep[0]).toFixed(2)+ " and the total Net Present Value is R" + Number(NPV).toFixed(2) +". To be clear, since this depreciation is allowed in the current year, it is similar to an expense in concept.";
               graphDep(dataDep,dataDep2);
       }
+      function showDep5(){
+        loadDep();
+        if(Ay1+Ay2+Ay3+Ay4+Ay5 != 1)alert("Your % should add to give 100%!"+Ay1+Ay2+Ay3+Ay4+Ay5);
+        var depreciation = (price-salvage);
+        var dataDep =[];
+        dataDep[0] = depreciation*Ay1/1000;
+        dataDep[1] = depreciation*Ay2/1000;
+        dataDep[2] = depreciation*Ay3/1000;
+        dataDep[3] = depreciation*Ay4/1000;
+        dataDep[4] = depreciation*Ay5/1000;
+
+ var dataDep2 =[];
+ var NPV = 0;
+ for(l=0;l<5;l++){
+   var ratio = Math.pow((1+rate),l);
+   dataDep2[l] = dataDep[l]/ratio;
+   NPV = NPV + dataDep2[l];
+ }
+               document.getElementById("yearlyDep").innerHTML = "The year 1 depreciation is R" +Number(dataDep[0]).toFixed(2)+ ", year 2 is R" +Number(dataDep[1]).toFixed(2)+ ", year 3 is R" +Number(dataDep[2]).toFixed(2)+ ", year 4 is R" +Number(dataDep[3]).toFixed(2)+ " and year 5 is R" +Number(dataDep[4]).toFixed(2) +". The total Net Present Value is R" + Number(NPV).toFixed(2);
+              graphDep(dataDep,dataDep2);
+      }
+      function showDep6(){
+        loadDep();
+        var depreciation = (price);
+        var dataDep =[];
+        dataDep[0] = depreciation*Dy/1000;
+        depreciation = depreciation-dataDep[0]*1000;
+        dataDep[1] = depreciation*Dy/1000;
+        depreciation = depreciation-dataDep[1]*1000;
+        dataDep[2] = depreciation*Dy/1000;
+        depreciation = depreciation-dataDep[2]*1000;
+        dataDep[3] = depreciation*Dy/1000;
+        depreciation = depreciation-dataDep[3]*1000;
+        dataDep[4] = depreciation*Dy/1000;
+        depreciation = depreciation-dataDep[4]*1000;
+        dataDep[5] = depreciation*Dy/1000;
+        depreciation = depreciation-dataDep[5]*1000;
+        dataDep[6] = depreciation*Dy/1000;
+
+ var dataDep2 =[];
+ var NPV = 0;
+ for(l=0;l<7;l++){
+   var ratio = Math.pow((1+rate),l);
+   dataDep2[l] = dataDep[l]/ratio;
+   NPV = NPV + dataDep2[l];
+ }
+               document.getElementById("yearlyDep").innerHTML = "The year 1 depreciation is R" +Number(dataDep[0]).toFixed(2)+ ", year 2 is R" +Number(dataDep[1]).toFixed(2)+ ", year 3 is R" +Number(dataDep[2]).toFixed(2)+ ", year 4 is R" +Number(dataDep[3]).toFixed(2)+ ", year 5 is R" +Number(dataDep[4]).toFixed(2)+ ", year 6 is R" +Number(dataDep[5]).toFixed(2)+ " and year 7 is R" +Number(dataDep[6]).toFixed(2) +". The total Net Present Value is R" + Number(NPV).toFixed(2);
+              graphDep(dataDep,dataDep2);
+      }
 function graphDep(dataDep,dataDep2){
           var x = document.getElementById("showAnswer");
           x.style.display = "block";
@@ -159,7 +215,7 @@ function graphDep(dataDep,dataDep2){
         
       </script>
 <body>
-  <div style = "background-color:rgb(255,230,200);  id="div3">
+  <div style = "background-color:rgb(255,230,200)"  id="div3">
   <H3 style="background-color:rgb(232,232,232); color:#60223b; ">In short, Depreciation on tangible assets and Amortization on non-tangibles are seen as expenses to the company. Because Profits = Revenue - Expenses, this allows a company to pay less tax and make a fair profit. The reason for depreciation is that a company may not record the Cost of an asset directly as an Expense when they buy the asset. They record the lowering of value over time as depreciation according to fixed rules. </H3>
   <H3 style="background-color:rgb(232,232,232); color:#60223b; ">The values with ** are required for all the methods below. Additionally, the values with * are required when using that specific method.</H3>
   **Purchase price: <input type="text" class="resizedTextbox"  id="price">
@@ -170,9 +226,11 @@ function graphDep(dataDep,dataDep2){
 
 <button onclick="showDep2()" class="editRowBtnDep" id = "showHide22">New & unused manufacturing machinery</button>Depreciation of new or unused manufacturing machines allow 40% in year 1, and 20% for years 2, 3 and 4. <br>
       
-      <button onclick="showDep3()" class="editRowBtnDep" id = "showHide23">Farming and biodiesel machinery</button>Machinery and articles used in farming, production of biodiesel or bioethanol allow 50% in year 1, 30% in year 2 and 20% in year 3. <br>
+<button onclick="showDep3()" class="editRowBtnDep" id = "showHide23">Farming and biodiesel machinery</button>Machinery and articles used in farming, production of biodiesel or bioethanol allow 50% in year 1, 30% in year 2 and 20% in year 3. <br>
       
-      <button onclick="showDep4()" class="editRowBtnDep" id = "showHide24">Renewable energy projects</button>Renewable energy projects allow 125% in year 1 (Temporary measure due to ESKOM loadshedding). <br><br>
+<button onclick="showDep4()" class="editRowBtnDep" id = "showHide24">Renewable energy projects</button>Renewable energy projects allow 125% in year 1 (Temporary measure due to ESKOM loadshedding). <br>
+<button onclick="showDep5()" class="editRowBtnDep" id = "showHide25">Accelerated; own %</button>Year 1 %: <input type="text" class="resizedTextbox" id="Ayear1">Year 2 %: <input type="text" class="resizedTextbox" id="Ayear2">Year 3 %: <input type="text" class="resizedTextbox" id="Ayear3">Year 4 %: <input type="text" class="resizedTextbox" id="Ayear4">Year 5 %: <input type="text" class="resizedTextbox" id="Ayear5"><br>
+<button onclick="showDep6()" class="editRowBtnDep" id = "showHide26">Diminishing-Balance</button>Method to depreciate a fixed % of book value per year. Yearly %: <input type="text" class="resizedTextbox" id="Dyear"><br><br>
       <div style = "background-color:rgb(255,230,200);" id="yearlyDep"></div>
       <div id="parentDep" style="background-color:rgb(232,232,232); color:#60223b;">
 <div id="showAnswer" style="background-color:rgb(232,232,232); color:#60223b;">
