@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aethelburg Renaissance • 30-Scenario Challenge</title>
+    <style>
+        :root {
+            --primary: #4a7043;
+            --accent: #c9a66b;
+            --light: #f8f4eb;
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(#e8e2d1, #d4c9a8);
+            color: #333;
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            line-height: 1.65;
+        }
+        
+        .container {
+            max-width: 920px;
+            margin: 0 auto;
+            background: white;
+            border: 8px solid var(--primary);
+            border-radius: 12px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 25px 20px;
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 2.1em;
+        }
+        
+        header p {
+            margin: 8px 0 0;
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+        
+        #score-board {
+            background: #f4f0e0;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--accent);
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        #score-display {
+            color: #b33;
+            font-size: 1.55em;
+            font-family: monospace;
+        }
+        
+        .progress {
+            height: 6px;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+        
+        .module {
+            display: none;
+            padding: 30px 25px;
+        }
+        
+        .module.active {
+            display: block;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-top: 0;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 10px;
+        }
+        
+        .story-text {
+            font-size: 1.12em;
+            margin-bottom: 20px;
+        }
+        
+        .towns-person {
+            background: #fffbe6;
+            border-left: 5px solid #ffc107;
+            padding: 14px 18px;
+            margin: 20px 0;
+            font-style: italic;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .question {
+            font-weight: bold;
+            font-size: 1.15em;
+            margin: 25px 0 15px;
+        }
+        
+        .choice-button {
+            display: block;
+            width: 100%;
+            padding: 16px 20px;
+            margin: 12px 0;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05em;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+        
+        .choice-button:hover {
+            background: #5a8a52;
+            transform: translateY(-2px);
+        }
+        
+        .choice-button:disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+        }
+        
+        .feedback {
+            margin: 25px 0;
+            padding: 18px;
+            border-radius: 8px;
+            display: none;
+            line-height: 1.65;
+        }
+        
+        .feedback.show {
+            display: block;
+        }
+        
+        .feedback.success {
+            background: #e6f4ea;
+            border-left: 6px solid #4caf50;
+        }
+        
+        .feedback.info {
+            background: #fff8e1;
+            border-left: 6px solid var(--accent);
+        }
+        
+        #continue-btn {
+            display: none;
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: #222;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        .step-counter {
+            text-align: right;
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f4eb;
+            color: #555;
+            font-size: 0.95em;
+        }
+        
+        @media (max-width: 600px) {
+            .container { border-width: 6px; }
+            header h1 { font-size: 1.85em; }
+            .module { padding: 25px 18px; }
+            .choice-button { padding: 15px 18px; font-size: 1.02em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>Aethelburg Renaissance</h1>
+        <p>30-Scenario Economic Consulting Adventure</p>
+    </header>
+
+    <div id="score-board">
+        <span>Consulting Expertise Score</span>
+        <span id="score-display">0</span>
+    </div>
+    <div class="progress" id="progress-bar"></div>
+
+    <!-- Main Story Module -->
+    <div id="main-module" class="module active">
+        <div class="step-counter">Scenario <span id="current-step">1</span> of 30</div>
+        
+        <h2 id="scenario-title">Welcome to Aethelburg</h2>
+        
+        <div id="story-text" class="story-text"></div>
+        
+        <div id="towns-person-quote" class="towns-person"></div>
+        
+        <div id="question-text" class="question"></div>
+        
+        <div id="choices-container"></div>
+        
+        <div id="feedback-area" class="feedback"></div>
+        
+        <button id="continue-btn" onclick="nextScenario()">Continue →</button>
+    </div>
+
+    <!-- Final Report Module -->
+    <div id="final-module" class="module">
+        <h2>Final Consulting Report</h2>
+        <div id="final-report-content" class="story-text"></div>
+        
+        <div style="margin-top:40px; display:flex; gap:15px; flex-wrap:wrap;">
+            <button onclick="resetGame()" style="flex:1; padding:14px; background:#555; color:white; border:none; border-radius:8px; cursor:pointer;">
+                Restart Journey
+            </button>
+            <button onclick="showCertificate()" style="flex:1; padding:14px; background:var(--accent); color:#222; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">
+                Submit Report
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    Every choice teaches real economic theory through conversations with the people of Aethelburg
+</footer>
+
+<script>
+    let score = 0;
+    let currentScenarioIndex = 0;
+    const maxScore = 900;
+
+const scenarios = [
+    {
+        id: 0,
+        title: "Scenario 1: The Mayor at the Town Hall",
+        story: "The townspeople have gathered. The mayor turns to you, the visiting economic consultant, and asks for the most basic truth about why their economy is struggling.",
+        quote: "“We have skilled workers, beautiful land, and plenty of ideas… yet we’re always short of something. What’s really going on?”",
+        famousQuote: "“The first lesson of economics is scarcity: There is never enough of anything to fully satisfy all those who want it.” — Thomas Sowell",
+        question: "How do you explain the root cause to the entire town?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You explain: “We face scarcity — unlimited wants but only limited resources. This forces every choice we make.”", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>A: Correct</span> — Perfect opening! Scarcity is the fundamental economic problem that underlies all of economics. Because human wants are essentially unlimited while resources (time, land, labor, materials) are limited, every society and every individual must make choices. The townspeople nod — they feel understood and ready to learn about trade-offs." 
+            },
+            { 
+                letter: "B", 
+                text: "You say: “The root problem is simply that the town lacks enough circulating money. If we printed more cash, secured big loans, or attracted outside investment, everyone could finally buy what they need and the shortages would disappear overnight.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — A common mistake. Increasing the money supply does not create more real resources (land, labor, materials). It may cause inflation, where prices rise and the purchasing power of money falls, but it does not solve scarcity. The mayor looks confused because this ignores the real limits." 
+            },
+            { 
+                letter: "C", 
+                text: "You describe: “The real key is opportunity cost — every decision means giving up the next-best option, so we just need smarter planning and better priorities to stretch what we already have without ever admitting any overall limits exist.”", 
+                points: 20, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Good concept, but you skipped the foundation. Opportunity cost only exists *because* of scarcity. Without limited resources, there would be no need to give up anything. The crowd is a bit lost because the explanation feels incomplete without starting from scarcity." 
+            }
+        ]
+    },
+    {
+        id: 1,
+        title: "Scenario 2: The Old Farmer by the Fields",
+        story: "You walk with Farmer Aldric who must decide whether to plant wheat or barley this season.",
+        quote: "“I only have so much land and time. If I plant wheat, I can’t plant barley. What am I really giving up?”",
+        famousQuote: "“There are no solutions; there are only trade-offs.” — Thomas Sowell",
+        question: "How do you explain his dilemma?",
+        options: [
+            { 
+                letter: "A", 
+                text: "Just pick whichever crop sells for more right now — short-term market prices will guide you best without overcomplicating things.", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Short-term thinking ignores the real cost. While current prices matter, they don’t capture the full value of what you sacrifice by not planting the other crop (future soil health, market changes, risk, etc.)." 
+            },
+            { 
+                letter: "B", 
+                text: "Opportunity cost — the value of the next-best alternative you give up.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — Excellent! The farmer smiles — he now sees his choice clearly. Opportunity cost is what you must give up to get something else. Choosing wheat means forgoing the benefits of barley (and vice versa). This concept helps make better decisions under scarcity." 
+            },
+            { 
+                letter: "C", 
+                text: "You say: “Scarcity doesn’t really apply to farming because land is a natural gift from nature itself. Focus on working harder on what you have instead of worrying about any built-in limits or what you must sacrifice.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Incorrect — even natural resources like land, water, and time are scarce. Working harder helps, but it doesn’t eliminate the need to choose what to plant." 
+            }
+        ]
+    },
+    {
+        id: 2,
+        title: "Scenario 3: The Market Square Crowd",
+        story: "At the busy Crossroads Market the crowd wants to know why they can’t have everything they desire.",
+        quote: "“Why can’t we just make enough lemonade, bread, and tools for everyone?”",
+        famousQuote: "“Economics is the science which studies human behaviour as a relationship between ends and scarce means which have alternative uses.” — Lionel Robbins",
+        question: "Your explanation of choice under scarcity?",
+        options: [
+            { 
+                letter: "A", 
+                text: "It’s just bad luck and poor planning by previous leaders — better management would fix everything without deeper limits.", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Too vague — misses the economic principle. Blaming luck or past leaders doesn’t explain why choices and sacrifices are unavoidable in every society." 
+            },
+            { 
+                letter: "B", 
+                text: "The government should provide everything — they can organize production so nobody ever has to choose.", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — That would still require choices and opportunity costs. Governments face the same scarcity constraints; providing more of one thing means less of something else." 
+            },
+            { 
+                letter: "C", 
+                text: "Because of scarcity, every choice has an opportunity cost. We must decide what to produce and for whom.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Clear and empowering. The crowd starts to understand trade-offs. Scarcity forces societies to answer three basic questions: What to produce? How to produce it? For whom?" 
+            }
+        ]
+    },
+    {
+        id: 3,
+        title: "Scenario 4: The Wellness Center Owner",
+        story: "The owner of the Health & Wellness Center is puzzled why membership is low despite plenty of space.",
+        quote: "“People say they want to be healthy… but they don’t sign up. Why is the number of people who join so low?”",
+        famousQuote: "“It is not from the benevolence of the butcher, the brewer, or the baker that we expect our dinner, but from their regard to their own interest.” — Adam Smith",
+        question: "How do you explain demand vs number of people who joined using microeconomic theory?",
+        options: [
+            { 
+                letter: "A", 
+                text: "Demand is number of people willing and abile to buy a good or service at various prices. The low membership is because people may want to be healthy but they don’t have the money or willingness to pay for the wellness center’s services at the current price.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>A: Correct</span> — Spot on. The owner now sees the difference between a 'want' (desire) and 'demand' (desire backed by ability and willingness to pay). This distinction is crucial for business decisions." 
+            },
+            { 
+                letter: "B", 
+                text: "You explain: “Demand is simply converting how much people desire something. If they truly want health, they’ll find a way — the missing piece is stronger marketing to turn wants into action.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Close, but misses the ‘ability to pay’ part. Desire alone is not enough; people must also have the money and willingness to spend it at the current price." 
+            },
+            { 
+                letter: "C", 
+                text: "You say: “It’s just added benefits that’s missing. Run the right campaigns and benefits alone will drive people through the doors regardless of price or income.”", 
+                points: 20, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Advertising helps raise awareness and can shift tastes, but demand is deeper than that. Without ability to pay, strong desire still won’t translate into actual purchases." 
+            }
+        ]
+    },
+    {
+    id: 4,
+    title: "Scenario 5: The Baker’s Oven",
+    story: "The baker shows you rising flour costs and asks why he can’t supply as much bread as before.",
+    quote: "“Higher costs mean I bake less. Is that normal?”",
+    famousQuote: "“The law of supply states that, all else equal, higher prices lead to higher quantities supplied. However, changes in production costs shift the entire supply curve.” — Thomas Sowell (adapted)",
+    question: "What best explains what is happening in this situation?",
+    options: [
+        { 
+            letter: "A", 
+            text: "This is the law of supply in action: as the price of bread rises, bakers will naturally supply more bread despite the higher flour costs.", 
+            points: 15, 
+            feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — This confuses the law of supply with a supply shift. The law of supply says that higher prices lead to more quantity supplied when all other factors (like input costs) remain constant. Here, input costs have changed, so we are dealing with a shift of the supply curve, not just a movement along it." 
+        },
+        { 
+            letter: "B", 
+            text: "Higher input costs have no real effect on supply. Bakers should simply raise their prices and continue producing the same amount as before.", 
+            points: 10, 
+            feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Incorrect. Rising flour costs increase the cost of production, making it less profitable to bake bread at previous levels. Bakers will supply less bread at every price unless bread prices rise enough to cover the extra costs. Supply is not fixed or automatic." 
+        },
+        { 
+            letter: "C", 
+            text: "Higher flour costs shift the supply curve to the left. This results in a higher equilibrium price for bread and a lower equilibrium quantity supplied and demanded.", 
+            points: 35, 
+            feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Excellent explanation! When input costs rise, the entire supply curve shifts left (decrease in supply). This leads to higher bread prices and lower overall quantity in the market. Consumers end up buying less bread (a movement along the demand curve) because it is now more expensive. This clearly shows the difference between the law of supply (price affecting quantity supplied, all else equal) and a supply shift caused by changing production costs." 
+        }
+    ]
+    },
+    {
+        id: 5,
+        title: "Scenario 6: The Market Surplus",
+        story: "Too many unsold loaves sit on the bakery shelves.",
+        quote: "“We baked too much and now it’s going to waste. What’s happening?”",
+        famousQuote: "“Prices act as signals that guide resources to their most valued uses.” — Friedrich Hayek",
+        question: "What market condition is this?",
+        options: [
+            { 
+                letter: "A", 
+                text: "A shortage — we need more bread, so the town should encourage even more baking to meet the need.", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Opposite problem. A surplus means too much supply at the current price, not too little." 
+            },
+            { 
+                letter: "B", 
+                text: "A surplus — price is above equilibrium, so quantity supplied > quantity demanded.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — Yes! The market will naturally push price down to clear the excess inventory. Surpluses signal that the price is too high." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “Equilibrium has already been reached — this is just normal market fluctuation and the extra bread will eventually sell if we wait patiently.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Not yet — imbalance exists. In equilibrium, quantity supplied exactly equals quantity demanded with no surplus or shortage." 
+            }
+        ]
+    },
+    {
+        id: 6,
+        title: "Scenario 7: The Shortage at the Workshop",
+        story: "Tools at the Community Workshop are always booked and fights break out over usage.",
+        quote: "“We never have enough tools when we need them!”",
+        famousQuote: "“The price system is a mechanism for communicating information.” — Friedrich Hayek",
+        question: "What is this market condition?",
+        options: [
+            { 
+                letter: "A", 
+                text: "A shortage — price is below equilibrium.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>A: Correct</span> — Exactly. When price is held below equilibrium, quantity demanded exceeds quantity supplied, creating shortages, queues, and conflicts. Price needs to rise or supply must increase." 
+            },
+            { 
+                letter: "B", 
+                text: "You say: “A surplus of tools — we clearly have too many sitting around, so the real fix is to stop producing more and let the market correct itself.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — No — the opposite. A shortage means not enough tools are available at the current price." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “Perfect efficiency already — the fights are just people learning to share, and any extra tools would be wasteful.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Far from it. Shortages indicate inefficiency and wasted time as people fight over limited resources." 
+            }
+        ]
+    },
+    {
+        id: 7,
+        title: "Scenario 8: Equilibrium Explained",
+        story: "The mayor wants to know when the market finally ‘works’.",
+        quote: "“When does the chaos stop?”",
+        famousQuote: "“When supply and demand are in balance, resources flow to their highest-valued uses without waste.” — Thomas Sowell",
+        question: "Define equilibrium for the townspeople.",
+        options: [
+            { 
+                letter: "A", 
+                text: "The price the government sets to keep things fair and stable for everyone.", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Not necessarily. Government-set prices often create surpluses or shortages rather than true equilibrium." 
+            },
+            { 
+                letter: "B", 
+                text: "The price where quantity demanded exactly equals quantity supplied — no shortage or surplus.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — Beautifully clear. The crowd applauds. At equilibrium, the market clears efficiently with no pressure for price to change." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “When everyone is happy with what they get — that’s the true sign the market is working perfectly.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Too subjective. Equilibrium is an objective balance between supply and demand, not a measure of universal happiness." 
+            }
+        ]
+    },
+    {
+        id: 8,
+        title: "Scenario 9: The City Grant",
+        story: "The council announces a subsidy that lowers the price of wellness memberships.",
+        quote: "“Will this bring more people in?”",
+        famousQuote: "“Incentives matter — people respond to both costs and benefits.” — Thomas Sowell",
+        question: "How does this affect demand?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You explain: “It only changes quantity demanded along the same curve — people will buy more because it’s cheaper, but the overall demand doesn’t actually shift.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — No — this is a shift. A subsidy increases people’s ability to pay, shifting the entire demand curve to the right." 
+            },
+            { 
+                letter: "B", 
+                text: "It has no effect on demand — subsidies are just temporary help that doesn’t change real willingness to pay.", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Incorrect. Subsidies act as an extrinsic incentive and do shift demand outward." 
+            },
+            { 
+                letter: "C", 
+                text: "It shifts the demand curve right — more people can now afford it (extrinsic incentive).", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Yes! External incentives matter. The subsidy makes membership more accessible, increasing demand at every price level." 
+            }
+        ]
+    },
+    {
+        id: 9,
+        title: "Scenario 10: The Mentorship Program",
+        story: "The wellness center starts a community recognition program.",
+        quote: "“People feel proud when they join. Is that economics too?”",
+        famousQuote: "“Economics is not just about money — it’s about all incentives that influence human choice.” — Thomas Sowell",
+        question: "Explain intrinsic incentives.",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “Income and price incentives matter — pride and community feeling are nice but don’t actually move economic behavior in any meaningful way.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Too narrow. Non-monetary incentives like pride and social recognition powerfully influence choices." 
+            },
+            { 
+                letter: "B", 
+                text: "Yes — internal motivations like pride and community belonging can also shift demand right.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — Outstanding. The owner sees the full picture. Intrinsic incentives (status, belonging, satisfaction) can shift demand just like price changes or subsidies." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “That’s psychology, not economics — real economic analysis sticks to prices, costs, and measurable financial factors alone.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Incentives include both. Economics studies all factors that influence human choice, including intrinsic motivations." 
+            }
+        ]
+    },
+    {
+        id: 10,
+        title: "Scenario 11: Rising Incomes",
+        story: "The town council want to draw more people to invest in the town. They decide to lower property tax by 50%, effectively give all the current families a higher disposable income. The sock maker and sneaker factory both want to know the impact.",
+        quote: "“Will people buy more of my exclusive handmade socks and budget sneakers?”",
+        famousQuote: "“As incomes rise, people shift toward higher-quality goods and away from inferior ones.” — Thomas Sowell",
+        question: "Normal vs Inferior goods?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You pose: “It's complicated. For the socks demand shifts right and for the sneakers demand shifts left.”", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>A: Correct</span> — Perfect distinction! Normal goods see increased demand as income rises; inferior goods see decreased demand as people switch to better alternatives." 
+            },
+            { 
+                letter: "B", 
+                text: "You say: “Both will sell more — rising incomes mean people can afford everything, so demand rises across the board for all goods equally.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Not true for inferior goods. As income rises, demand for inferior goods actually falls." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “Disposable income has no real effect on what people choose — personal preferences stay the same since they earn the same.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Missed the concept. Disposable income is one of the five major demand shifters." 
+            }
+        ]
+    },
+    {
+        id: 11,
+        title: "Scenario 12: The Electric Trolley Launch",
+        story: "A new electric trolley service opens — a substitute for bicycles.",
+        quote: "“Will this hurt our bike shop?”",
+        famousQuote: "“Goods that can replace each other in satisfying the same want are substitutes.” — Alfred Marshall",
+        question: "Explain substitute goods.",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “Demand for bikes will rise — the new trolley will make people more active and interested in cycling as a complement.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Opposite effect. The trolley is a substitute, so demand for bicycles should decrease." 
+            },
+            { 
+                letter: "B", 
+                text: "Yes — demand for bicycles shifts left because the two are substitutes.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — Correct market logic. When a substitute becomes available or cheaper, demand for the original good shifts left." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “No effect on demand — people will still want bikes for exercise and fun even with the trolley available.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Substitutes do matter. A better or cheaper alternative reduces demand for the original product." 
+            }
+        ]
+    },
+    {
+        id: 12,
+        title: "Scenario 13: The Flour Price Spike",
+        story: "Flour costs suddenly rise for every baker in town.",
+        quote: "“Why is bread suddenly more expensive everywhere?”",
+        famousQuote: "“A rise in input costs shifts the entire supply curve leftward.” — Thomas Sowell",
+        question: "Explain a supply shift.",
+        options: [
+            { 
+                letter: "A", 
+                text: "You explain: “Demand for bread has increased because people are eating more carbs lately — that’s why prices are rising everywhere.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Wrong side of the market. This is a supply shock, not a demand shift." 
+            },
+            { 
+                letter: "B", 
+                text: "You say: “The market is in equilibrium already — the higher flour price is just temporary noise and everything will balance out without any real change in supply.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — No — a shift occurred. Higher input costs shift the supply curve left, leading to higher prices and lower quantity supplied." 
+            },
+            { 
+                letter: "C", 
+                text: "Higher input costs shift the supply curve left — less bread supplied at every price.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Textbook supply shock explained. Producers supply less at every price level when costs rise." 
+            }
+        ]
+    },
+    {
+        id: 13,
+        title: "Scenario 14: The Bike Shop & Repair Tools",
+        story: "Bike sales and bike-repair classes are both booming.",
+        quote: "“Why do these two things rise together?”",
+        famousQuote: "“Complementary goods are consumed together; a rise in demand for one raises demand for the other.” — Standard demand theory",
+        question: "Complementary goods?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “The netflix series of the Tour de Avenon must have an influence. Bicycle riding and repair are glorified.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — They are linked. These are complements." 
+            },
+            { 
+                letter: "B", 
+                text: "You explain: “Substitutes exist in economics and bicycles are a good substitute for walking.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — The question was about cycling and repairing bicycles. Goods used together complement and reinforce each other’s demand." 
+            },
+            { 
+                letter: "C", 
+                text: "Yes — bicycles and repair classes are complements; demand for one increases demand for the other.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Great cross-good insight. When demand for bicycles rises, demand for complementary repair services also rises." 
+            }
+        ]
+    },
+    {
+        id: 14,
+        title: "Scenario 15: The Artisan’s Dilemma",
+        story: "A master artisan prices his work so high that almost no one buys it.",
+        quote: "“I want to earn a living, but nobody can afford me.”",
+        famousQuote: "“Resources should go to those who value them most highly at the prevailing price.” — Thomas Sowell",
+        question: "What efficiency concept is the artist missing and how would he correct it?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “You should make more — lower the price slightly by special discount and volume will solve the sales problem.”", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>A: Correct</span> — If you cannot move the demand, your option is to move the supply to the right, effectively dropping the price, not just production volume." 
+            },
+            { 
+                letter: "B", 
+                text: "Allocative efficiency — resources are not going to those who value them most at current prices.", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — High prices may exclude buyers who value the work highly but can’t afford it, meaning resources are not allocated efficiently." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “The market is already efficient — high prices simply reflect the true value of rare artisanal skill. Genius is not always appreciated in its own time.”", 
+                points: 5, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — It is not. If almost no one can buy, the good is not reaching those who value it most." 
+            }
+        ]
+    },
+    {
+        id: 15,
+        title: "Scenario 16: The Shared Workshop Tools",
+        story: "The community workshop’s best tools sit idle half the day, and are requested by multiple people at other times.",
+        quote: "“We’re wasting our most valuable resources.”",
+        famousQuote: "“A Pareto improvement makes at least one person better off without making anyone worse off.” — Vilfredo Pareto",
+        question: "How to improve efficiency?",
+        options: [
+            { 
+                letter: "A", 
+                text: "A shared booking system with lower cost during unpopular times creates a Pareto improvement — everyone gains without anyone losing.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>A: Correct</span> — Brilliant real-world solution. Better allocation of existing tools improves total output without requiring new resources." 
+            },
+            { 
+                letter: "B", 
+                text: "You say: “Buy more tools for peak times — extra equipment will eliminate any idle time of the artisans and everyone will have access.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Expensive and not always possible. This ignores the opportunity cost of spending money on more tools instead of other needs." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “Leave it as is — the idle time is actually a natural market signal that we already have enough tools overall.”", 
+                points: 20, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Missed opportunity. Idle high-value resources represent inefficiency that can often be improved through better coordination." 
+            }
+        ]
+    },
+    {
+        id: 16,
+        title: "Scenario 17: Price Signals",
+        story: "A young merchant asks why prices seem to ‘convince’ some people, but not others.",
+        quote: "“Prices tell us what to do?”",
+        famousQuote: "“The price system is a mechanism for communicating information.” — Friedrich Hayek",
+        question: "Explain the role of prices.",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “Prices are set by sellers — they don’t guide anyone and many people don't look, so it should be regulated for fairness.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Too simplistic. Prices carry vital information about scarcity and preferences." 
+            },
+            { 
+                letter: "B", 
+                text: "You explain: “The people or government should set prices — they can decide what is fair and communicate the right signals to producers and consumers.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Ignores market signals. Centralized price setting usually fails to convey accurate information about local conditions." 
+            },
+            { 
+                letter: "C", 
+                text: "Prices relay information — they tell producers what to make more of and consumers what to buy less of.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Classic economic wisdom delivered clearly. Rising prices signal scarcity in the market and encourage more production and less consumption." 
+            }
+        ]
+    },
+    {
+        id: 17,
+        title: "Scenario 18: Future Inflation Expectations",
+        story: "People hear rumors of coming inflation and start buying more goods now.",
+        quote: "“Should we stock up before prices rise?”",
+        famousQuote: "“Expectations about the future powerfully influence current economic behavior.” — Thomas Sowell",
+        question: "How do expectations affect demand?",
+        options: [
+            { 
+                letter: "A", 
+                text: "Higher expected future prices shift current demand right — clever people buy more today.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>A: Correct</span> — Forward-looking behavior correctly explained. When people expect higher future prices, they increase current demand, which can cause prices to rise even sooner." 
+            },
+            { 
+                letter: "B", 
+                text: "You say: “Expectations should not matter — people respond to today’s actual prices and current conditions.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — They do. Expectations are a powerful demand shifter." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “Its better to look at historical prices — future rumors are just noise that smart buyers ignore when making decisions.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Expectations shift curves. Forward-looking decisions are central to economic behavior." 
+            }
+        ]
+    },
+    {
+        id: 18,
+        title: "Scenario 19: Town Population Growth",
+        story: "More families are moving to Aethelburg.",
+        quote: "“Will this help or hurt local businesses?”",
+        famousQuote: "“Population growth is a major shifter of demand curves for normal goods.” — Thomas Sowell",
+        question: "Effect of population on demand?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “It has limited effect on demand since supply stay the same. The overall market stays balanced. i might be bad for local business, since they might also start their own businesses.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — It does. More people generally increase overall demand. And if they start a business, that contributes to local business growth, not harm it." 
+            },
+            { 
+                letter: "B", 
+                text: "You explain: “It only affects supply — more people mean more workers, so businesses can produce more without demand changing.”", 
+                points: 5, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Primarily affects demand. Population growth shifts demand curves right for most normal goods." 
+            },
+            { 
+                letter: "C", 
+                text: "Increased population shifts demand curves right for most normal goods.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Population is a key demand shifter. More residents mean more potential buyers." 
+            }
+        ]
+    },
+    {
+        id: 19,
+        title: "Scenario 20: Changing Tastes",
+        story: "Suddenly everyone wants locally-made goods because of a new pride campaign.",
+        quote: "“Our tastes changed overnight. Does that matter?”",
+        famousQuote: "“Tastes and preferences are one of the five major determinants of demand.” — Thomas Sowell",
+        question: "Tastes & preferences as a demand shifter?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “Tastes don’t affect economics — they are personal feelings, not something that moves supply or demand curves.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — They absolutely do. Changes in tastes are a major demand shifter." 
+            },
+            { 
+                letter: "B", 
+                text: "Yes — a change in tastes shifts the demand curve right for local products.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — One of the five major demand shifters nailed. When tastes shift toward local goods, demand increases at every price." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “Only price changes matter — tastes are secondary and don’t cause real shifts in what people actually buy.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Shifters are separate from price. Tastes can shift the entire demand curve." 
+            }
+        ]
+    },
+    {
+        id: 20,
+        title: "Scenario 21: The Price Floor Debate",
+        story: "Some unions want to set a minimum price on bread to protect bakers.",
+        quote: "“Should we stop prices from falling?”",
+        famousQuote: "“Price controls create surpluses or shortages and always produce unintended consequences.” — Milton Friedman",
+        question: "What happens with a price control or price floor?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You explain: “It always helps everyone — bakers earn more and consumers still get bread at a fair minimum price with no downsides.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Rarely true. Price floors above equilibrium create surpluses and deadweight loss." 
+            },
+            { 
+                letter: "B", 
+                text: "It creates a persistent surplus and deadweight loss — not efficient.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — Honest analysis of intervention consequences. A price floor prevents the market from clearing, leading to excess supply and inefficiency." 
+            },
+            { 
+                letter: "C", 
+                text: "You say: “It has no side effects — the floor simply stabilizes the market and protects local producers without hurting anyone else.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Interventions have trade-offs. Surpluses mean wasted resources and higher prices for consumers." 
+            }
+        ]
+    },
+    {
+        id: 21,
+        title: "Scenario 22: Competitive Markets",
+        story: "A chain store opens across from the local bakery.",
+        quote: "“Is competition good or bad?”",
+        famousQuote: "“By pursuing his own interest he frequently promotes that of the society more effectually than when he really intends to promote it.” — Adam Smith",
+        question: "Your view on competitive markets?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “We should licence and control the number competing per industry — local businesses deserve protection so they can keep serving the town without cut-throat competition.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Protectionism harms consumers. It reduces incentives for efficiency and innovation." 
+            },
+            { 
+                letter: "B", 
+                text: "Competition drives efficiency, lower prices, and better quality in the long run.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — Mature and balanced answer. Competition is the engine of economic progress." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “It makes no difference — the new store will just take some customers but overall sales and quality stay exactly the same.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — It does matter. Competition forces firms to improve quality and lower costs." 
+            }
+        ]
+    },
+    {
+        id: 22,
+        title: "Scenario 23: The Pareto Challenge",
+        story: "The Foundation asks if you can improve the town without hurting anyone.",
+        quote: "“Can we make things better for everyone?”",
+        famousQuote: "“A Pareto improvement occurs when at least one person is made better off without anyone being made worse off.” — Vilfredo Pareto",
+        question: "Define a Pareto improvement.",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “Any change that increases total wealth — even if some people lose out, the overall pie gets bigger.”", 
+                points: 20, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Close but not exact. Pareto improvement requires no one is made worse off." 
+            },
+            { 
+                letter: "B", 
+                text: "You explain: “Whatever the majority votes for — democracy ensures the best outcome for the town as a whole.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Not the definition. Majority rule can still make some people worse off." 
+            },
+            { 
+                letter: "C", 
+                text: "You state: “Any change that makes at least one person better off without making anyone worse off.”", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Core efficiency concept mastered. Pareto improvements are the least controversial way to make society better.”" 
+            }
+        ]
+    },
+    {
+        id: 23,
+        title: "Scenario 24: Production Efficiency",
+        story: "The workshop is using skilled labor poorly.",
+        quote: "“We’re not getting the most out of our people.”",
+        famousQuote: "“Resources are used efficiently when we operate on the production-possibilities frontier.” — Thomas Sowell",
+        question: "How to achieve production efficiency?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “Just work harder — motivation and effort from the team will push output to the maximum.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Not systemic. Working harder inside an inefficient allocation still wastes potential." 
+            },
+            { 
+                letter: "B", 
+                text: "Reallocate resources so we produce on the production-possibilities frontier — no waste.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — Advanced understanding shown. Production efficiency means producing the maximum possible output with given resources — being on the PPF." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “It’s impossible to be fully efficient — there will always be some waste no matter how we organize labor.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — It is possible in theory. Economies can reach the production-possibilities frontier through better resource allocation." 
+            }
+        ]
+    },
+    {
+        id: 24,
+        title: "Scenario 25: The Lemonade Stand Mini-Test",
+        story: "The Foundation recreates the original Lemonade Stand Challenge with limited zest and sugar.",
+        quote: "“Why can’t we satisfy every child’s want?”",
+        famousQuote: "“Scarcity forces choices and opportunity costs on every decision.” — Thomas Sowell",
+        question: "Back to basics — what concept is this testing?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “Supply matters here — if we organize production better, we can meet every child’s request.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Even perfect supply organization cannot overcome fundamental scarcity." 
+            },
+            { 
+                letter: "B", 
+                text: "Scarcity and opportunity cost — we must choose the highest-value use of limited resources.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — Full circle — excellent. This brings us back to the very first concept." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “Unlimited resources exist if we try hard enough — creativity and effort will overcome any temporary limits.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — No — scarcity is real and permanent in our current reality. Effort helps, but it cannot eliminate current limits." 
+            }
+        ]
+    },
+    {
+        id: 25,
+        title: "Scenario 26: The Electric Bike Boom",
+        story: "Rising gasoline prices push people toward electric bikes or are they migrating for other reasons?",
+        quote: "“Everything is connected or people are more health consious?”",
+        famousQuote: "“Markets are interconnected — changes in one good affect substitutes and complements.” — Thomas Sowell",
+        question: "Identify the related goods in this setup?",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “Bikes and repairs are related, but gasoline is not used for those.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Markets are linked. Changes in one market ripple through substitutes and complements." 
+            },
+            { 
+                letter: "B", 
+                text: "Gasoline and electric bikes are substitutes; bikes and repair classes are complements.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>B: Correct</span> — Interconnected markets perfectly explained. Higher gasoline prices increase demand for electric bikes (substitutes), while higher bike sales increase demand for repair services (complements)." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “Only one market exists at a time — each good stands alone without effects on others.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Too isolated. Real economies are highly interconnected." 
+            }
+        ]
+    },
+    {
+        id: 26,
+        title: "Scenario 27: Basic Elasticity",
+        story: "The baker wonders if a small price increase will lose many customers.",
+        quote: "“Will they still buy my bread if I charge a bit more?”",
+        famousQuote: "“Price elasticity tells us how sensitive quantity demanded is to price changes.” — Standard microeconomics",
+        question: "Introduce price elasticity simply.",
+        options: [
+            { 
+                letter: "A", 
+                text: "You say: “A small price increase will not affect quantity — loyal customers will buy the same amount if the price increase is small.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — It does. Price changes almost always affect quantity demanded to some degree." 
+            },
+            { 
+                letter: "B", 
+                text: "You explain: “All goods have elasticity — a price rise will cause the same percentage drop in sales everywhere.”", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Elasticity varies widely by good. Bread is usually inelastic; luxury items are often elastic." 
+            },
+            { 
+                letter: "C", 
+                text: "If demand is elastic, a price rise causes a large drop in quantity demanded; if inelastic, the drop is small.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Gentle and accurate introduction. Understanding elasticity helps predict how revenue changes with price adjustments." 
+            }
+        ]
+    },
+    {
+        id: 27,
+        title: "Scenario 28: Public Policy Trade-offs",
+        story: "The council is considering a price ceiling on rent.",
+        quote: "“Will this help our young families?”",
+        famousQuote: "“There is no such thing as a free lunch.” — Milton Friedman",
+        question: "What are the trade-offs?",
+        options: [
+            { 
+                letter: "A", 
+                text: "Short-term help for renters but creates shortages and black markets long-term.", 
+                points: 35, 
+                feedback: "<span style='color: green; font-weight: bold;'>A: Correct</span> — Realistic policy analysis. A price ceiling helps current tenants who secure housing but leads to shortages, reduced maintenance, black markets, and less new housing supply over time." 
+            },
+            { 
+                letter: "B", 
+                text: "You say: “It solves the housing problem — and provides affordable rent for everyone.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Unintended consequences exist. Price ceilings usually reduce quantity supplied and create inefficiencies." 
+            },
+            { 
+                letter: "C", 
+                text: "You explain: “Specially the lower cost landlords will benefit by raising their prices to the ceiling. Price ceilings simply make housing fair.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>C: Wrong</span> — Economics is about trade-offs. Ignoring them leads to disappointing real-world outcomes." 
+            }
+        ]
+    },
+    {
+        id: 28,
+        title: "Scenario 29: The Big Picture",
+        story: "You stand before the full town assembly for the final time.",
+        quote: "“You’ve taught us so many pieces… what ties it all together?”",
+        famousQuote: "“Economics is the study of how people make choices under scarcity and respond to incentives.” — Thomas Sowell",
+        question: "Your closing explanation?",
+        options: [
+            { 
+                letter: "A", 
+                text: "Economics is abstract and complicated and can only be understood by drawing graphs over time, but real town decisions are easy by comparison, as you have seen.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Too narrow. Economics is about human behavior, choices, and incentives far beyond just money and charts." 
+            },
+            { 
+                letter: "B", 
+                text: "You don’t need to understand economics — common sense and good intentions are enough to run a thriving town.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Everyone does. Ignoring economic principles leads to unintended consequences and missed opportunities." 
+            },
+            { 
+                letter: "C", 
+                text: "Economics is the science of making the best choices under scarcity, guided by incentives, aiming for efficient and fair outcomes.", 
+                points: 40, 
+                feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Masterful summary. The town cheers. This ties together scarcity, incentives, trade-offs, and efficiency." 
+            }
+        ]
+    },
+    {
+        id: 29,
+        title: "Scenario 30: Final Recommendations",
+        story: "The Foundation asks for your 3–5 concrete, economically sound recommendations to spark the renaissance.",
+        quote: "“What should we actually do?”",
+        famousQuote: "“The proper role of government is to create the rules of the game that allow markets and voluntary cooperation to flourish.” — Milton Friedman",
+        question: "Your final consulting advice to Aethelburg?",
+        options: [
+            { 
+                letter: "A", 
+                text: "1. Give everyone higher tax rebates. 2. Solve scarcity and 3. Lower prices to allow people to buy whatever they need.”", 
+                points: 10, 
+                feedback: "<span style='color: red; font-weight: bold;'>A: Wrong</span> — Doesn’t solve scarcity. More money without more real goods and services usually leads to inflation." 
+            },
+            { 
+                letter: "B", 
+                text: "1. Copy what other towns do.  2. Successful places have proven formulas we can adopt locally. 3. Focus on short-term wins to build momentum. 4. Discourage changes that might disrupt the current order.", 
+                points: 15, 
+                feedback: "<span style='color: red; font-weight: bold;'>B: Wrong</span> — Local context matters. What works elsewhere may not fit Aethelburg’s specific resources, culture, or institutions. Changes driven by free market incentives often outperform top-down plans." 
+            },
+            { 
+                letter: "C", 
+                text: "1. Form cooperatives to reduce input volatility. 2. Blend extrinsic & intrinsic incentives. 3. Create shared efficient resources. 4. Monitor all curve shifters. 5. Always seek Pareto improvements.", 
+                points: 45, 
+                feedback: "<span style='color: green; font-weight: bold;'>C: Correct</span> — Outstanding synthesis — you have truly earned the title of Chief Consultant. These recommendations are grounded in sound economic principles and practical for long-term prosperity." 
+            }
+        ]
+    }
+];
+
+    function updateScore(points) {
+        score += points;
+        if (score > maxScore) score = maxScore;
+        document.getElementById('score-display').textContent = score;
+        
+        const progress = Math.min((score / maxScore) * 100, 100);
+        document.getElementById('progress-bar').style.width = progress + '%';
+    }
+
+    function renderScenario(index) {
+        const s = scenarios[index];
+        document.getElementById('current-step').textContent = index + 1;
+        document.getElementById('scenario-title').textContent = s.title;
+        document.getElementById('story-text').innerHTML = `<p>${s.story}</p>`;
+        document.getElementById('towns-person-quote').innerHTML = `“${s.quote}”`;
+        document.getElementById('question-text').innerHTML = `<strong>Your response as the consultant:</strong>`;
+
+        const container = document.getElementById('choices-container');
+        container.innerHTML = '';
+
+        s.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-button';
+            btn.innerHTML = `<strong>${opt.letter}.</strong> ${opt.text}`;
+            btn.onclick = () => selectAnswer(index, opt, btn);
+            container.appendChild(btn);
+        });
+
+        const fb = document.getElementById('feedback-area');
+        fb.classList.remove('show');
+        document.getElementById('continue-btn').style.display = 'none';
+    }
+
+    function selectAnswer(index, option, clickedBtn) {
+        const s = scenarios[index];
+        // Disable all buttons
+        document.querySelectorAll('#choices-container .choice-button').forEach(b => b.disabled = true);
+
+        updateScore(option.points);
+
+        // Show feedback
+        const fb = document.getElementById('feedback-area');
+        fb.className = `feedback show ${option.points >= 30 ? 'success' : 'info'}`;
+        fb.innerHTML = `<strong>You picked ${option.letter} ! </strong> <br>  ${s.famousQuote} <br>
+        ${s.options[0].letter} — ${s.options[0].feedback}<br>
+        ${s.options[1].letter} — ${s.options[1].feedback}<br>
+        ${s.options[2].letter} — ${s.options[2].feedback}`;
+        // Show continue button
+        document.getElementById('continue-btn').style.display = 'block';
+    }
+
+    function nextScenario() {
+        currentScenarioIndex++;
+        
+        if (currentScenarioIndex >= scenarios.length) {
+            document.getElementById('main-module').classList.remove('active');
+            document.getElementById('final-module').classList.add('active');
+            generateFinalReport();
+        } else {
+            renderScenario(currentScenarioIndex);
+        }
+    }
+
+    function generateFinalReport() {
+        document.getElementById('final-report-content').innerHTML = `
+            <p><strong>Final Score: ${score} / ${maxScore}</strong></p>
+            <h3>Your Journey Through 30 Scenarios</h3>
+            <p>You have explained core economic concepts to the people of Aethelburg — from scarcity and opportunity cost to incentives, equilibrium, efficiency, and market shifters.</p>
+            <p class="towns-person">The townspeople now understand that economics is the practical art of making better choices under scarcity, guided by incentives, aiming for efficient outcomes.</p>
+            <p style="text-align:center; margin-top:40px; font-size:1.3em;">
+                <strong>Congratulations, Chief Economic Consultant!</strong><br>
+                Aethelburg’s renaissance has truly begun.
+            </p>
+        `;
+    }
+
+    function showCertificate() {
+        alert(`🎉 REPORT SUBMITTED TO THE AETHELBURG RENAISSANCE FOUNDATION\n\nYour Expertise Score: ${score} / ${maxScore}\n\nYou successfully guided the town through 30 real-world economic conversations.\n\nKey Takeaway: Understand scarcity. Harness incentives. Pursue efficiency.\n\nAethelburg thanks you!`);
+    }
+
+    function resetGame() {
+        if (!confirm('Restart the entire 30-scenario journey and start over from Scenario 1?')) return;
+        
+        score = 0;
+        currentScenarioIndex = 0;
+        document.getElementById('score-display').textContent = '0';
+        document.getElementById('progress-bar').style.width = '0%';
+        
+        document.getElementById('final-module').classList.remove('active');
+        document.getElementById('main-module').classList.add('active');
+        
+        renderScenario(0);
+    }
+
+    // Initialize
+    window.onload = function() {
+        // Reset score on reload
+        localStorage.removeItem('aethelburgScore');
+        renderScenario(0);
+    };
+</script>
+
+</body>
+</html>
