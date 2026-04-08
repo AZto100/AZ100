@@ -368,7 +368,7 @@
         <div class="secondary">Cash <span id="stickyCash">R 0</span> · Last profit <span id="stickyProfit">R 0</span></div>
       </div>
       <div class="actions">
-        <button id="btnNext" class="success">Run Next Week →</button>
+        <button id="btnNext" class="success">Submit Orders and Simulate next week ... →</button>
       </div>
     </div>
   </div>
@@ -452,8 +452,8 @@
     }
 
     el('btnNext').disabled = false;
-    el('btnNext').textContent = 'Run Next Week →';
-    if(el('btnNextDesktop')){ el('btnNextDesktop').disabled = false; el('btnNextDesktop').textContent = 'Run Next Week →'; }
+    el('btnNext').textContent = 'Submit Orders and Simulate next Week ... →';
+    if(el('btnNextDesktop')){ el('btnNextDesktop').disabled = false; el('btnNextDesktop').textContent = 'Submit Orders and Simulate next Week ... →'; }
     renderAll();
     logEl.innerHTML = '';
     logMsg('New game started on <b>' + diff.label + '</b>. Orders reduce <b>cash</b> immediately, but only affect <b>profit</b> later when inventory is sold, spoiled, or held.');
