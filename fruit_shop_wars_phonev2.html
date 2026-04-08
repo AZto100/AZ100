@@ -181,7 +181,7 @@
       </div>
     </div>
         <div>
-      <h1>Fruit Shop Wars <span class="chip">Teaching Edition: V0.01 EE212 Stellenbosch University</span></h1>
+      <h1>Fruit Shop Wars <span class="chip">Teaching Edition: V0.05 EE212 Stellenbosch University</span></h1>
       <div class="sub">Run Shop A against two AI shops across 5 fruits. Students choose prices, advertising, and inventory orders 
   <span style="color: lightgreen; font-weight: bold;">(All the headings in GREEN)</span>. 
   <span class="chip">You need to enter order quantities below for each fruit you sell. You also need to enter the marketing budget and selling price per fruit every week. When you are happy with you choices, click the green "Submit orders and Simulate Next Week Sales..." button. </span>
@@ -391,12 +391,12 @@
   ];
 
   const difficultySettings = {
-    easy:   {label:'Easy',   alpha:0.18, beta:0.55, noiseDemand:6, noiseChoice:0.04, spoilMult:0.80, aiAgg:0.70, stockoutPenalty:0.18, overhead:320},
-    normal: {label:'Normal', alpha:0.22, beta:0.65, noiseDemand:10, noiseChoice:0.08, spoilMult:1.00, aiAgg:1.00, stockoutPenalty:0.25, overhead:350},
-    hard:   {label:'Hard',   alpha:0.28, beta:0.72, noiseDemand:14, noiseChoice:0.11, spoilMult:1.18, aiAgg:1.25, stockoutPenalty:0.32, overhead:380}
+    easy:   {label:'Easy',   alpha:0.18, beta:0.55, noiseDemand:6, noiseChoice:0.04, spoilMult:0.80, aiAgg:0.70, stockoutPenalty:0.06, overhead:320},
+    normal: {label:'Normal', alpha:0.22, beta:0.65, noiseDemand:10, noiseChoice:0.08, spoilMult:1.00, aiAgg:1.00, stockoutPenalty:0.08, overhead:350},
+    hard:   {label:'Hard',   alpha:0.28, beta:0.72, noiseDemand:14, noiseChoice:0.11, spoilMult:1.18, aiAgg:1.25, stockoutPenalty:0.10, overhead:380}
   };
 
-  const brand = {A:0.07, B:0.03, C:0.00};
+  const brand = {A:0.03, B:0.02, C:0.04};
   const holdingCostRate = 0.03;
   const loanInterest = 0.01;
   const adToEffect = (spend)=> Math.log(1 + spend/250);
@@ -434,13 +434,23 @@
       history:[]
     };
 
+    const aiStart = diff.label === 'Hard'
+      ? {B:{goodwill:1.01, ad:430, inv:0.30, order:0.45, pipe:0.16, priceOffset:0.3}, C:{goodwill:1.01, ad:480, inv:0.33, order:0.50, pipe:0.20, priceOffset:-0.3}}
+      : diff.label === 'Normal'
+      ? {B:{goodwill:1.01, ad:380, inv:0.27, order:0.42, pipe:0.12, priceOffset:0.2}, C:{goodwill:1.01, ad:420, inv:0.30, order:0.46, pipe:0.16, priceOffset:-0.2}}
+      : {B:{goodwill:1.01, ad:320, inv:0.25, order:0.39, pipe:0.08, priceOffset:0.15}, C:{goodwill:1.01, ad:350, inv:0.27, order:0.42, pipe:0.10, priceOffset:-0.15}};
+
     for(const s of ['B','C']){
+      const cfg = aiStart[s];
       for(const f of fruits){
-        state.shops[s].price[f.key] = Math.max(1, f.pRef + (s==='B' ? 0.5 : -0.3));
-        state.shops[s].order[f.key] = Math.round(f.baseQ/3);
-        state.shops[s].inv[f.key] = Math.round(f.baseQ/5);
+        state.shops[s].price[f.key] = Math.max(1, f.pRef + cfg.priceOffset);
+        state.shops[s].order[f.key] = Math.round(f.baseQ * cfg.order);
+        state.shops[s].inv[f.key] = Math.round(f.baseQ * cfg.inv);
+        state.shops[s].pipeline[f.key] = Math.round(f.baseQ * cfg.pipe);
       }
-      state.shops[s].adSpend = (s==='B' ? 260 : 180);
+      state.shops[s].goodwill = cfg.goodwill;
+      state.shops[s].adSpend = cfg.ad;
+      state.shops[s].cash = 5600;
     }
 
     for(const f of fruits){
@@ -685,40 +695,32 @@
   function aiDecide(shopId){
     const p = state.params;
     const s = state.shops[shopId];
-    const targetShare = 1/3;
-    const shareGap = (s.lastShare || targetShare) - targetShare;
+    const A = state.shops.A;
+    const hardBoost = p.label === 'Hard' ? 1.0 : p.label === 'Normal' ? 0.55 : 0.20;
+    const strategy = shopId === 'B'
+      ? {priceMult: 1.05 + 0.01*hardBoost, orderMult: 0.98, adMult: 1.12 + 0.04*hardBoost, adBase: 40 + 25*hardBoost, marginFloor: 1.14, buffer: 0.08 + 0.02*hardBoost}
+      : {priceMult: 0.95 - 0.01*hardBoost, orderMult: 1.10 + 0.03*hardBoost, adMult: 1.18 + 0.05*hardBoost, adBase: 70 + 35*hardBoost, marginFloor: 1.06, buffer: 0.14 + 0.03*hardBoost};
 
-    let ad = s.adSpend;
-    if(shareGap < -0.03) ad += 40 * p.aiAgg;
-    if(shareGap > 0.05) ad -= 25 * p.aiAgg;
-    if(s.lastProfit < 0) ad -= 20;
-    ad = clamp(ad, 80, 760);
+    // Let AI use the player's decisions as anchor, but give B/C enough structural edge
+    // that the student must actively compete instead of winning by default.
+    s.adSpend = Math.round(clamp((A.adSpend || 0) * strategy.adMult + strategy.adBase, 180, 1100));
 
-    const compIds = ['A','B','C'].filter(x=>x!==shopId);
     for(const f of fruits){
-      const compAvgPrice = compIds.reduce((acc,id)=>acc+state.shops[id].price[f.key],0)/compIds.length;
-      const margin = s.price[f.key] - f.cost;
-      let pNew = s.price[f.key];
-      if(shareGap < -0.03) pNew -= 0.3 * p.aiAgg;
-      else if(shareGap > 0.05) pNew += 0.2 * p.aiAgg;
-      else pNew += 0.05;
-      if(margin < 1.5) pNew += 0.2;
-      pNew += p.noiseChoice * randn();
-      pNew = clamp(pNew, Math.max(f.cost*1.1, compAvgPrice - 3.5), Math.max(f.cost*1.95, compAvgPrice + 3.5));
-      s.price[f.key] = Math.round(pNew*2)/2;
+      const playerPrice = A.price[f.key];
+      const playerOrder = A.order[f.key] || 0;
 
-      const adRel = Math.exp(p.beta * ((adToEffect(ad)*s.goodwill) - (compIds.reduce((t,id)=>t+adToEffect(state.shops[id].adSpend)*state.shops[id].goodwill,0)/compIds.length)));
-      const priceRel = Math.exp(-p.alpha * (s.price[f.key] - compAvgPrice));
-      let expectedShare = (priceRel * adRel) / (priceRel * adRel + 2);
-      expectedShare = clamp(expectedShare, 0.15, 0.58);
-      const qTot = Math.max(0, f.baseQ - f.slope * (((s.price[f.key] + compAvgPrice)/2) - f.pRef));
-      const targetSales = qTot * expectedShare;
-      const stockTarget = targetSales * 1.10;
-      const availableNextWeek = s.inv[f.key] + s.pipeline[f.key] * 0.9;
-      let order = Math.max(0, stockTarget - availableNextWeek);
+      let targetPrice = playerPrice * strategy.priceMult;
+      targetPrice = clamp(targetPrice, f.cost * strategy.marginFloor, f.cost * 1.95);
+      s.price[f.key] = Math.round(targetPrice * 2) / 2;
+
+      const baseBuffer = f.baseQ * strategy.buffer;
+      const pipelineGap = Math.max(0, A.pipeline[f.key] - s.pipeline[f.key]) * 0.35;
+      const invGap = A.inv[f.key] - s.inv[f.key];
+      let order = playerOrder * strategy.orderMult + baseBuffer + pipelineGap;
+      if(invGap > 10) order += Math.min(35, invGap * 0.6);
+      if(invGap < -18) order -= Math.min(20, Math.abs(invGap) * 0.35);
       s.order[f.key] = Math.round(clamp(order, 0, 99999) / 5) * 5;
     }
-    s.adSpend = Math.round(ad);
   }
 
   function runWeek(){
@@ -747,12 +749,22 @@
 
     const sharesByFruit = {};
     for(const f of fruits){
+      const ids = ['A','B','C'];
+      const avgPriceFruit = ids.reduce((t,id)=>t + state.shops[id].price[f.key], 0) / ids.length;
+      const avgAdEffect = ids.reduce((t,id)=>t + adToEffect(state.shops[id].adSpend), 0) / ids.length;
+      const avgGoodwill = ids.reduce((t,id)=>t + state.shops[id].goodwill, 0) / ids.length;
+
       const U = {};
-      for(const id of ['A','B','C']){
+      for(const id of ids){
         const s = state.shops[id];
-        const priceU = -p.alpha * s.price[f.key];
-        const adU = p.beta * Math.log(1 + adToEffect(s.adSpend) * s.goodwill);
-        U[id] = brand[id] + priceU + adU + p.noiseChoice * randn();
+        const relativePrice = (s.price[f.key] - avgPriceFruit) / Math.max(1, f.pRef);
+        const relativeAd = adToEffect(s.adSpend) - avgAdEffect;
+        const relativeGoodwill = s.goodwill - avgGoodwill;
+
+        const priceU = -8.5 * p.alpha * relativePrice;
+        const adU = 1.35 * p.beta * relativeAd;
+        const goodwillU = 2.2 * relativeGoodwill;
+        U[id] = brand[id] + priceU + adU + goodwillU + (p.noiseChoice * 0.45) * randn();
       }
       const maxU = Math.max(U.A,U.B,U.C);
       const expA = Math.exp(U.A-maxU), expB = Math.exp(U.B-maxU), expC = Math.exp(U.C-maxU);
@@ -811,8 +823,10 @@
 
       let desiredTotal=0, soldTotal=0;
       for(const f of fruits){ desiredTotal += desired[id][f.key]; soldTotal += sold[id][f.key]; }
-      const stockoutRate = desiredTotal > 0 ? clamp(1 - soldTotal/desiredTotal, 0, 1) : 0;
-      s.goodwill = clamp(s.goodwill * (1 - p.stockoutPenalty * stockoutRate) + 0.02, 0.72, 1.28);
+      const fillRate = desiredTotal > 0 ? clamp(soldTotal/desiredTotal, 0, 1) : 1;
+      const serviceDelta = (fillRate - 0.965) * 0.08;
+      const profitSignal = clamp(s.lastProfit / 2500, -1, 1) * 0.01;
+      s.goodwill = clamp(1 + (s.goodwill - 1) * 0.72 + serviceDelta + profitSignal, 0.98, 1.08);
 
       const marketUnits = totalUnits.A + totalUnits.B + totalUnits.C;
       s.lastShare = marketUnits > 0 ? totalUnits[id] / marketUnits : 1/3;
