@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fruit Shop Wars — Teaching Edition</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121a33; --panel2:#0f1630; --text:#e9eefc; --muted:#aab6de;
+      --good:#48d597; --warn:#f7c843; --bad:#ff5b6e; --line:#273258; --accent:#7aa7ff;
+      --chip:#1a2550;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 20% 0%, #18224a 0%, var(--bg) 55%, #070b18 100%);
+      color:var(--text);
+      padding-bottom:110px;
+    }
+    header{
+      padding:14px 14px 10px;
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background: linear-gradient(180deg, rgba(18,26,51,.96), rgba(18,26,51,.28));
+      position: sticky; top:0; backdrop-filter: blur(10px); z-index: 10;
+    }
+    header h1{ margin:0; font-size:18px; letter-spacing:.2px; }
+    header .sub{ color:var(--muted); font-size:12px; max-width:900px; }
+    .wrap{ padding:12px; max-width:1400px; margin:0 auto; }
+    .grid{ display:grid; gap:12px; grid-template-columns: 1fr; }
+    @media (min-width: 1080px){ .grid{ grid-template-columns: 1.06fr .94fr; } }
+    .card{
+      background: linear-gradient(180deg, rgba(18,26,51,.9), rgba(15,22,48,.92));
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.28);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    }
+    .card .hd .title{ font-weight:700; font-size:13px; letter-spacing:.2px; display:flex; align-items:center; gap:8px; }
+    .card .hd .hint{ font-size:12px; color:var(--muted); }
+    .card .bd{ padding:14px; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .stack{ display:grid; gap:12px; }
+    .pill{
+      padding:6px 10px; border-radius:999px; background: rgba(122,167,255,.12);
+      border:1px solid rgba(122,167,255,.22); color: #dbe6ff; font-size:12px;
+    }
+    .pill.good{ background: rgba(72,213,151,.12); border-color: rgba(72,213,151,.25); }
+    .pill.warn{ background: rgba(247,200,67,.12); border-color: rgba(247,200,67,.25); }
+    .pill.bad{ background: rgba(255,91,110,.12); border-color: rgba(255,91,110,.25); }
+    button, select{
+      background: linear-gradient(180deg, rgba(122,167,255,.28), rgba(122,167,255,.12));
+      border:1px solid rgba(122,167,255,.32);
+      color:var(--text); padding:10px 12px; border-radius:12px;
+      font-weight:650; letter-spacing:.1px;
+    }
+    button{ cursor:pointer; transition: transform .06s ease, filter .15s ease, background .15s ease; }
+    button:hover{ filter: brightness(1.05); }
+    button:active{ transform: translateY(1px); }
+    button.secondary, select.secondary{
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.10);
+      font-weight:600;
+    }
+    button.success{ background: linear-gradient(180deg, rgba(72,213,151,.35), rgba(72,213,151,.15)); border:1px solid rgba(72,213,151,.45); color:#eafff6; }
+    button.danger{ background: linear-gradient(180deg, rgba(255,91,110,.45), rgba(255,91,110,.18)); border:1px solid rgba(255,91,110,.60); color:#ffe9ec; }
+    table{ width:100%; border-collapse: collapse; font-size:12.5px; }
+    th, td{ padding:8px 8px; border-bottom:1px solid rgba(255,255,255,.06); text-align:left; vertical-align:middle; }
+    th{ color:#dbe6ff; font-size:12px; letter-spacing:.15px; }
+    td small{ color:var(--muted); display:block; margin-top:2px; }
+    input[type="number"]{
+      width:86px; padding:7px 8px; border-radius:10px; border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18); color:var(--text); outline:none;
+    }
+    input[type="number"]:focus{ border-color: rgba(122,167,255,.55); box-shadow: 0 0 0 3px rgba(122,167,255,.15); }
+    .note{ color:var(--muted); font-size:12px; line-height:1.35; }
+    .tiny{ color:var(--muted); font-size:11px; line-height:1.35; }
+    .kpi{ display:grid; gap:10px; grid-template-columns: repeat(5, 1fr); }
+    @media (max-width: 1100px){ .kpi{ grid-template-columns: repeat(3, 1fr);} }
+    @media (max-width: 700px){ .kpi{ grid-template-columns: repeat(2, 1fr);} }
+    .kpi .box{ background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.06)); border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:10px 12px; }
+    .kpi .box .lab{ color:var(--muted); font-size:11px; }
+    .kpi .box .val{ font-size:16px; font-weight:800; margin-top:3px; letter-spacing:.2px; }
+    .kpi .box .sub{ font-size:11px; color:var(--muted); margin-top:2px; }
+    .log{ max-height: 280px; overflow:auto; padding-right:8px; }
+    .log .item{ padding:8px 10px; border:1px solid rgba(255,255,255,.06); border-radius:12px; background: rgba(0,0,0,.12); margin-bottom:8px; font-size:12.5px; line-height:1.35; }
+    .log .item b{ color:#dbe6ff; }
+    .chip{ display:inline-block; padding:2px 8px; border-radius:999px; background: rgba(26,37,80,.9); border:1px solid rgba(255,255,255,.08); color:#dbe6ff; font-size:11px; margin-left:6px; }
+    .bar{ height:8px; border-radius:999px; background: rgba(255,255,255,.08); overflow:hidden; margin-top:6px; }
+    .bar > div{ height:100%; background: linear-gradient(90deg, rgba(72,213,151,.9), rgba(122,167,255,.9)); width:0%; }
+    .flex-sb{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .mono{ font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .ok{ color: var(--good); }
+    .warntext{ color: var(--warn); }
+    .badtxt{ color: var(--bad); }
+    .teach-grid{ display:grid; gap:10px; grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 900px){ .teach-grid{ grid-template-columns:1fr; } }
+    details{ border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px 12px; background:rgba(0,0,0,.12); }
+    details summary{ cursor:pointer; font-weight:700; }
+    .chart-grid{ display:grid; gap:12px; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 980px){ .chart-grid{ grid-template-columns:1fr; } }
+    canvas{ width:100%; height:180px; display:block; background:rgba(0,0,0,.12); border:1px solid rgba(255,255,255,.07); border-radius:12px; }
+    .legend{ display:flex; gap:12px; flex-wrap:wrap; font-size:11px; color:var(--muted); }
+    .legend span::before{ content:""; display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+    .lg-a::before{ background:#7aa7ff; } .lg-b::before{ background:#48d597; } .lg-c::before{ background:#f7c843; } .lg-d::before{ background:#ff8aa1; }
+    .scenario{ padding:8px 10px; border-radius:12px; border:1px solid rgba(255,255,255,.07); background:rgba(255,255,255,.04); }
+
+    .toolbar-inline{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .mobile-only{ display:block; }
+    .desktop-only{ display:none; }
+    .sticky-bar{
+      position:fixed; left:0; right:0; bottom:0; z-index:30;
+      background: linear-gradient(180deg, rgba(11,16,32,.86), rgba(11,16,32,.98));
+      border-top:1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(12px);
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 24px rgba(0,0,0,.28);
+    }
+    .sticky-bar .inner{ max-width:1400px; margin:0 auto; display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center; }
+    .sticky-bar .meta{ min-width:0; }
+    .sticky-bar .meta .primary{ font-size:12px; font-weight:800; }
+    .sticky-bar .meta .secondary{ font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sticky-bar .actions{ display:flex; gap:8px; }
+    .sticky-bar button{ min-width:112px; }
+    .mobile-controls{ display:grid; gap:10px; grid-template-columns: 1fr 1fr; margin-top:8px; }
+    .mobile-controls label{ display:grid; gap:6px; }
+    .compact-card .bd{ padding:12px; }
+    @media (max-width: 760px){
+      header{ padding:12px 12px 8px; }
+      header h1{ font-size:17px; }
+      header .sub{ font-size:11px; }
+      .wrap{ padding:10px; }
+      .card{ border-radius:12px; }
+      .card .hd{ padding:10px 12px; }
+      .card .bd{ padding:12px; }
+      .kpi{ grid-template-columns: repeat(2, 1fr); gap:8px; }
+      .kpi .box{ padding:9px 10px; }
+      .kpi .box .val{ font-size:15px; }
+      .teach-grid, .chart-grid{ grid-template-columns:1fr; }
+      table{ font-size:12px; }
+      th, td{ padding:7px 6px; }
+      input[type="number"]{ width:74px; }
+      .desktop-only{ display:none !important; }
+      .mobile-only{ display:block; }
+      .header-actions{ width:100%; }
+      .header-actions .toolbar-inline{ width:100%; justify-content:space-between; }
+      .header-actions .toolbar-inline > *{ flex:1 1 calc(50% - 4px); }
+      .header-actions .toolbar-inline > label{ flex-basis:100%; }
+      .header-actions select, .header-actions button{ width:100%; }
+      .sticky-bar .inner{ grid-template-columns: 1fr; }
+      .sticky-bar .actions{ width:100%; }
+      .sticky-bar .actions button{ flex:1; }
+    }
+    @media (min-width: 761px){
+      .mobile-only{ display:none !important; }
+      .desktop-only{ display:block; }
+      body{ padding-bottom:24px; }
+      .sticky-bar{ display:none; }
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-actions">
+      <div class="toolbar-inline">
+        <button id="btnNew" class="secondary">New Game</button>
+        <label class="note">Difficulty
+          <select id="difficulty" class="secondary">
+            <option value="easy">Easy</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+        <button id="btnReset" class="danger">Reset</button>
+      </div>
+    </div>
+        <div>
+      <h1>Fruit Shop Wars <span class="chip">Teaching Edition: V0.01 EE212 Stellenbosch University</span></h1>
+      <div class="sub">Run Shop A against two AI shops across 5 fruits. Students choose prices, advertising, and inventory orders 
+  <span style="color: lightgreen; font-weight: bold;">(All the headings in GREEN)</span>. 
+  <span class="chip">You need to enter order quantities below for each fruit you sell. You also need to enter the marketing budget and selling price per fruit every week. When you are happy with you choices, click the green "Submit orders and Simulate Next Week Sales..." button. </span>
+    </div>
+  </header>
+
+  <div class="wrap stack">
+    <section class="card">
+      <div class="bd stack">
+        <div class="teach-grid">
+          <div class="scenario">
+            <b>Movement along demand</b>
+            <div class="tiny" style="margin-top:6px;">Ask students to cut one fruit price while keeping ads similar. Quantity demanded should increase mainly through the price channel.</div>
+          </div>
+          <div class="scenario">
+            <b>Shift in demand toward a firm</b>
+            <div class="tiny" style="margin-top:6px;">Raise advertising while holding prices steady. Students should see higher market share at similar market prices.</div>
+          </div>
+          <div class="scenario">
+            <b>Inventory risk</b>
+            <div class="tiny" style="margin-top:6px;">Over-order and show spoilage and holding cost. Under-order and show stockouts plus goodwill loss.</div>
+          </div>
+        </div>
+        <details open>
+          <summary>What students should notice</summary>
+          <div class="note" style="margin-top:8px;">
+            1) <b>Average market price</b> affects <b>total market demand</b> for each fruit.<br>
+            2) <b>Your price and ad spend</b> affect <b>your share</b> of that demand.<br>
+            3) <b>Orders arrive next week</b>, so bad forecasts create stockouts or waste.<br>
+            4) <b>Profit is not the same as cash flow</b>: buying stock reduces cash now, but only becomes an expense when sold, spoiled, or held.
+          </div>
+        </details>
+        <details>
+          <summary>Difficulty settings</summary>
+          <div class="note" style="margin-top:8px;">
+            <b>Easy</b>: lower spoilage, weaker randomness, gentler AI.<br>
+            <b>Normal</b>: balanced teaching mode.<br>
+            <b>Hard</b>: stronger AI, more price-sensitive customers, higher spoilage and volatility.
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <div class="hd">
+          <div class="title" style="color: lightgreen; font-weight: bold; font-size:13px;">Your Decisions (Shop A)</div>
+          <div class="hint">Set values, then run the week.</div>
+        </div>
+        <div class="bd">
+          <div class="kpi" style="margin-bottom:12px;">
+            <div class="box"><div class="lab">Week</div><div class="val mono" id="kWeek">1</div><div class="sub">12 weeks total</div></div>
+            <div class="box"><div class="lab">Cash</div><div class="val mono" id="kCash">R 0</div><div class="sub">Can go negative</div></div>
+            <div class="box"><div class="lab">Profit (last)</div><div class="val mono" id="kProfit">R 0</div><div class="sub">Accounting profit</div></div>
+            <div class="box"><div class="lab">Cash flow (last)</div><div class="val mono" id="kCashFlow">R 0</div><div class="sub">After purchases</div></div>
+            <div class="box"><div class="lab">Market share (last)</div><div class="val mono" id="kShare">0%</div><div class="sub">By units sold</div></div>
+          </div>
+
+          <div class="row" style="margin: 6px 0 14px;">
+            <span class="pill">Goal: maximize cumulative profit</span>
+            <span class="pill good">Ads shift demand toward you</span>
+            <span class="pill warn">Orders arrive next week</span>
+            <span class="pill bad">Unsold stock can spoil</span>
+          </div>
+
+          <div class="row" style="justify-content:space-between; align-items:flex-end; margin-bottom:8px;">
+            <div>
+              <div style="color: lightgreen; font-weight: bold; font-size:13px;">Advertising budget (this week)</div>
+              <div class="note">Boosts attractiveness with diminishing returns.</div>
+            </div>
+            <div>
+              <input id="adSpend" type="number" min="0" step="50" value="300" />
+              <div class="note" style="text-align:right;">R / week</div>
+            </div>
+          </div>
+
+          <div style="overflow:auto;">
+            <table id="decisionTable">
+              <thead>
+                <tr>
+                  <th>Fruit</th>
+                  <th><span style="color: lightgreen; font-weight: bold;">Price</span></th>
+                  <th><span style="color: lightgreen; font-weight: bold;">Order qty</span></th>
+                  <th>On hand</th>
+                  <th>Pipeline</th>
+                  <th>Unit cost</th>
+                  <th>Markup</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="note" style="margin-top:10px;">
+            <b>Demand logic:</b> total demand reacts to the average market price. Then demand is split across shops using price, advertising, goodwill, and some randomness.
+          </div>
+          <button id="btnNextDesktop" class="success desktop-only">Submit orders and Simulate Next Week Sales... →</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">
+          <div class="title">Results & Diagnostics</div>
+          <div class="hint">Useful for debriefing after each round.</div>
+        </div>
+        <div class="bd">
+          <div class="row" style="margin-bottom:10px;">
+            
+            <span class="pill" id="statePill">Running</span>
+            <span class="pill" id="difficultyPill">Normal</span>
+            <span class="pill">Bars = share of market demand captured</span>
+          </div>
+
+          <div style="overflow:auto; margin-bottom:10px;">
+            <table id="scoreTable">
+              <thead>
+                <tr>
+                  <th>Shop</th>
+                  <th>Cash</th>
+                  <th>Cum. profit</th>
+                  <th>Share (last)</th>
+                  <th>Goodwill</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="card" style="background: rgba(0,0,0,.10); border-radius:14px; border:1px solid rgba(255,255,255,.07); margin-bottom:12px;">
+            <div class="hd" style="border-bottom:1px solid rgba(255,255,255,.06);">
+              <div class="title">Shop A by fruit</div>
+              <div class="hint">Sold as % of total market demand for each fruit</div>
+            </div>
+            <div class="bd"><div id="miniBars"></div></div>
+          </div>
+
+          <div class="card" style="background: rgba(0,0,0,.10); border-radius:14px; border:1px solid rgba(255,255,255,.07); margin-bottom:12px;">
+            <div class="hd" style="border-bottom:1px solid rgba(255,255,255,.06);">
+              <div class="title">Last week breakdown (Shop A)</div>
+              <div class="hint">Profit and cash flow shown separately</div>
+            </div>
+            <div class="bd"><div id="breakdown"></div></div>
+          </div>
+
+          <div class="hd" style="padding:0 0 10px; border:none;">
+            <div class="title">Week-by-week log</div>
+            <div class="hint">Helpful discussion prompts</div>
+          </div>
+          <div class="log" id="log"></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="hd">
+        <div class="title">Charts over time</div>
+        <div class="hint">Use these to connect actions to outcomes.</div>
+      </div>
+      <div class="bd stack">
+        <div class="legend">
+          <span class="lg-a">Shop A / main series</span>
+          <span class="lg-b">Shop B or comparison</span>
+          <span class="lg-c">Shop C or comparison</span>
+          <span class="lg-d">Reference / demand</span>
+        </div>
+        <div class="chart-grid">
+          <div><div class="tiny" style="margin-bottom:6px;">Profit per week by shop</div><canvas id="chartProfit" width="580" height="180"></canvas></div>
+          <div><div class="tiny" style="margin-bottom:6px;">Market share by shop</div><canvas id="chartShare" width="580" height="180"></canvas></div>
+          <div><div class="tiny" style="margin-bottom:6px;">Average prices by shop</div><canvas id="chartPrice" width="580" height="180"></canvas></div>
+          <div><div class="tiny" style="margin-bottom:6px;">Shop A total demand captured vs total market demand</div><canvas id="chartDemand" width="580" height="180"></canvas></div>
+          <div><div class="tiny" style="margin-bottom:6px;">Shop A end-of-week inventory</div><canvas id="chartInventory" width="580" height="180"></canvas></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+  <div class="sticky-bar">
+    <div class="inner">
+      <div class="meta">
+        <div class="primary">Week <span id="stickyWeek">1</span> · <span id="stickyDiff">Normal</span></div>
+        <div class="secondary">Cash <span id="stickyCash">R 0</span> · Last profit <span id="stickyProfit">R 0</span></div>
+      </div>
+      <div class="actions">
+        <button id="btnNext" class="success">Submit Orders and Simulate next week ... →</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const fmtR = (x)=> {
+    const s = (Math.round(x*100)/100).toLocaleString(undefined,{minimumFractionDigits:0, maximumFractionDigits:2});
+    return 'R ' + s;
+  };
+  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+  const randn=()=>{ let u=0,v=0; while(u===0) u=Math.random(); while(v===0) v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
+  const el = (id)=>document.getElementById(id);
+
+  const MAX_WEEKS = 12;
+  const fruits = [
+    {key:'apples',  name:'Apples',  baseQ:260, pRef:12, slope:12, cost:6.5, spoil:0.18},
+    {key:'bananas', name:'Bananas', baseQ:310, pRef:10, slope:14, cost:5.0, spoil:0.22},
+    {key:'oranges', name:'Oranges', baseQ:240, pRef:11, slope:11, cost:6.0, spoil:0.16},
+    {key:'grapes',  name:'Grapes',  baseQ:190, pRef:18, slope:9,  cost:10.0, spoil:0.20},
+    {key:'pears',   name:'Pears',   baseQ:200, pRef:13, slope:10, cost:7.0, spoil:0.17}
+  ];
+
+  const difficultySettings = {
+    easy:   {label:'Easy',   alpha:0.18, beta:0.55, noiseDemand:6, noiseChoice:0.04, spoilMult:0.80, aiAgg:0.70, stockoutPenalty:0.18, overhead:320},
+    normal: {label:'Normal', alpha:0.22, beta:0.65, noiseDemand:10, noiseChoice:0.08, spoilMult:1.00, aiAgg:1.00, stockoutPenalty:0.25, overhead:350},
+    hard:   {label:'Hard',   alpha:0.28, beta:0.72, noiseDemand:14, noiseChoice:0.11, spoilMult:1.18, aiAgg:1.25, stockoutPenalty:0.32, overhead:380}
+  };
+
+  const brand = {A:0.07, B:0.03, C:0.00};
+  const holdingCostRate = 0.03;
+  const loanInterest = 0.01;
+  const adToEffect = (spend)=> Math.log(1 + spend/250);
+
+  let state;
+
+  function currentDiff(){ return difficultySettings[el('difficulty').value] || difficultySettings.normal; }
+
+  function makeShop(id, cash0){
+    return {
+      id, cash:cash0, cumProfit:0, adSpend:250,
+      price:Object.fromEntries(fruits.map(f=>[f.key, f.pRef])),
+      order:Object.fromEntries(fruits.map(f=>[f.key, 0])),
+      inv:Object.fromEntries(fruits.map(f=>[f.key, 0])),
+      pipeline:Object.fromEntries(fruits.map(f=>[f.key, 0])),
+      goodwill:1.0,
+      lastShare:0,
+      lastProfit:0,
+      lastCashFlow:0
+    };
+  }
+
+  function newGame(){
+    const diff = currentDiff();
+    state = {
+      week:1,
+      params: diff,
+      shops:{ A:makeShop('A', 5000), B:makeShop('B', 5000), C:makeShop('C', 5000) },
+      last:{
+        shareA:0, profitA:0, cashFlowA:0,
+        soldA:Object.fromEntries(fruits.map(f=>[f.key,0])),
+        marketQ:Object.fromEntries(fruits.map(f=>[f.key,0])),
+        breakdownA:null
+      },
+      history:[]
+    };
+
+    for(const s of ['B','C']){
+      for(const f of fruits){
+        state.shops[s].price[f.key] = Math.max(1, f.pRef + (s==='B' ? 0.5 : -0.3));
+        state.shops[s].order[f.key] = Math.round(f.baseQ/3);
+        state.shops[s].inv[f.key] = Math.round(f.baseQ/5);
+      }
+      state.shops[s].adSpend = (s==='B' ? 260 : 180);
+    }
+
+    for(const f of fruits){
+      state.shops.A.price[f.key] = f.pRef;
+      state.shops.A.order[f.key] = Math.round(f.baseQ/3);
+      state.shops.A.inv[f.key] = Math.round(f.baseQ/5);
+    }
+
+    el('btnNext').disabled = false;
+    el('btnNext').textContent = 'Submit Orders and Simulate next Week ... →';
+    if(el('btnNextDesktop')){ el('btnNextDesktop').disabled = false; el('btnNextDesktop').textContent = 'Submit Orders and Simulate next Week ... →'; }
+    renderAll();
+    logEl.innerHTML = '';
+    logMsg('New game started on <b>' + diff.label + '</b>. Orders reduce <b>cash</b> immediately, but only affect <b>profit</b> later when inventory is sold, spoiled, or held.');
+  }
+
+  const decisionBody = document.querySelector('#decisionTable tbody');
+  const scoreBody = document.querySelector('#scoreTable tbody');
+  const miniBars = el('miniBars');
+  const logEl = el('log');
+
+  function buildDecisionRows(){
+    decisionBody.innerHTML='';
+    for(const f of fruits){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><b>${f.name}</b><small>${f.key}</small></td>
+        <td><input type="number" min="1" step="0.5" id="p_${f.key}" value="0"></td>
+        <td><input type="number" min="0" step="5" id="o_${f.key}" value="0"></td>
+        <td class="mono" id="inv_${f.key}">0</td>
+        <td class="mono" id="pipe_${f.key}">0</td>
+        <td class="mono">${fmtR(f.cost)}</td>
+        <td class="mono" id="markup_${f.key}">0%</td>`;
+      decisionBody.appendChild(tr);
+    }
+  }
+
+  function readPlayerInputs(){
+    const A = state.shops.A;
+    A.adSpend = Math.max(0, Number(el('adSpend').value || 0));
+    for(const f of fruits){
+      A.price[f.key] = clamp(Number(el('p_'+f.key).value || f.pRef), 1, 999);
+      A.order[f.key] = clamp(Number(el('o_'+f.key).value || 0), 0, 99999);
+    }
+  }
+
+  function writePlayerInputs(){
+    const A = state.shops.A;
+    el('adSpend').value = Math.round(A.adSpend);
+    for(const f of fruits){
+      el('p_'+f.key).value = Math.round(A.price[f.key]*2)/2;
+      el('o_'+f.key).value = Math.round(A.order[f.key]);
+      el('inv_'+f.key).textContent = Math.round(A.inv[f.key]);
+      el('pipe_'+f.key).textContent = Math.round(A.pipeline[f.key]);
+      const markup = ((A.price[f.key] - f.cost) / f.cost) * 100;
+      const mk = el('markup_'+f.key);
+      mk.textContent = (markup>=0?'+':'') + markup.toFixed(0) + '%';
+      mk.className = 'mono ' + (markup >= 20 ? 'ok' : markup >= 0 ? 'warntext' : 'badtxt');
+    }
+  }
+
+  function renderKPI(){
+    el('kWeek').textContent = state.week;
+    el('kCash').textContent = fmtR(state.shops.A.cash);
+    el('kProfit').textContent = fmtR(state.last.profitA);
+    el('kCashFlow').textContent = fmtR(state.last.cashFlowA);
+    el('kShare').textContent = Math.round(state.last.shareA*100) + '%';
+    el('difficultyPill').textContent = state.params.label;
+    el('stickyWeek').textContent = state.week > MAX_WEEKS ? MAX_WEEKS : state.week;
+    el('stickyDiff').textContent = state.params.label;
+    el('stickyCash').textContent = fmtR(state.shops.A.cash);
+    el('stickyProfit').textContent = fmtR(state.last.profitA);
+    const pill = el('statePill');
+    if(state.week>MAX_WEEKS){ pill.textContent = 'Finished'; pill.className = 'pill good'; }
+    else { pill.textContent = 'Running'; pill.className = 'pill'; }
+  }
+
+  function renderScoreboard(){
+    scoreBody.innerHTML='';
+    const shops = Object.values(state.shops).slice().sort((a,b)=>b.cumProfit-a.cumProfit);
+    for(const s of shops){
+      const tr=document.createElement('tr');
+      tr.innerHTML = `
+        <td><b>Shop ${s.id}</b></td>
+        <td class="mono">${fmtR(s.cash)}</td>
+        <td class="mono">${fmtR(s.cumProfit)}</td>
+        <td class="mono">${Math.round(s.lastShare*100)}%</td>
+        <td class="mono">${s.goodwill.toFixed(2)}</td>`;
+      scoreBody.appendChild(tr);
+    }
+  }
+
+  function renderMiniBars(){
+    miniBars.innerHTML='';
+    const sold = state.last.soldA;
+    const marketQ = state.last.marketQ;
+    for(const f of fruits){
+      const soldUnits = sold[f.key] || 0;
+      const demandUnits = marketQ[f.key] || 0;
+      const pctDemand = demandUnits > 0 ? (soldUnits / demandUnits) * 100 : 0;
+      const width = Math.max(0, Math.min(100, pctDemand));
+      const box = document.createElement('div');
+      box.style.marginBottom='10px';
+      box.innerHTML = `
+        <div class="flex-sb">
+          <div><b>${f.name}</b> <span class="chip mono">sold ${Math.round(soldUnits)} / market ${Math.round(demandUnits)}</span></div>
+          <div class="mono" style="color:var(--muted)">${pctDemand.toFixed(1)}%</div>
+        </div>
+        <div class="bar"><div style="width:${width}%"></div></div>`;
+      miniBars.appendChild(box);
+    }
+  }
+
+  function renderBreakdown(){
+    const b = state.last.breakdownA;
+    const wrap = el('breakdown');
+    if(!b){ wrap.innerHTML = '<div class="note">No week has been run yet.</div>'; return; }
+    wrap.innerHTML = `
+      <table><tbody>
+        <tr><td>Revenue</td><td class="mono">${fmtR(b.revenue)}</td></tr>
+        <tr><td>COGS on units sold</td><td class="mono">-${fmtR(b.cogs)}</td></tr>
+        <tr><td>Spoilage cost</td><td class="mono">-${fmtR(b.spoilCost)}</td></tr>
+        <tr><td>Holding cost</td><td class="mono">-${fmtR(b.holdCost)}</td></tr>
+        <tr><td>Advertising</td><td class="mono">-${fmtR(b.ad)}</td></tr>
+        <tr><td>Overhead</td><td class="mono">-${fmtR(b.overhead)}</td></tr>
+        <tr><td>Interest</td><td class="mono">-${fmtR(b.interest)}</td></tr>
+        <tr><td><b>Accounting profit</b></td><td class="mono"><b>${fmtR(b.profit)}</b></td></tr>
+        <tr><td>Inventory purchases (cash only)</td><td class="mono">-${fmtR(b.purchaseSpend)}</td></tr>
+        <tr><td><b>Operating cash flow</b></td><td class="mono"><b>${fmtR(b.cashFlow)}</b></td></tr>
+      </tbody></table>
+      <div class="tiny" style="margin-top:8px;">Good classroom question: why can profit be positive while cash flow is weak? Usually because the shop bought lots of inventory for next week.</div>`;
+  }
+
+  function getAvgPrice(id){
+    return fruits.reduce((sum,f)=>sum + state.shops[id].price[f.key],0) / fruits.length;
+  }
+  function getInvTotal(id){
+    return fruits.reduce((sum,f)=>sum + state.shops[id].inv[f.key],0);
+  }
+
+  function pushHistory(entry){ state.history.push(entry); drawCharts(); }
+
+  function drawLineChart(canvasId, series, options={}){
+    const canvas = el(canvasId);
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = 'rgba(0,0,0,.12)';
+    ctx.fillRect(0,0,w,h);
+
+    const pad = {l:40,r:10,t:12,b:24};
+    const flatVals = series.flatMap(s=>s.data).filter(v=>Number.isFinite(v));
+    if(flatVals.length === 0){
+      ctx.fillStyle = '#aab6de'; ctx.font='12px sans-serif'; ctx.fillText('Run a week to generate chart data', 16, 24); return;
+    }
+    let min = options.min != null ? options.min : Math.min(...flatVals);
+    let max = options.max != null ? options.max : Math.max(...flatVals);
+    if(min === max){ min -= 1; max += 1; }
+    const range = max - min;
+    const n = Math.max(...series.map(s=>s.data.length));
+
+    ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1;
+    for(let i=0;i<4;i++){
+      const y = pad.t + ((h-pad.t-pad.b) * i/3);
+      ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+      const val = max - range*(i/3);
+      ctx.fillStyle='#aab6de'; ctx.font='11px sans-serif';
+      ctx.fillText((options.formatY ? options.formatY(val) : Math.round(val)), 4, y+4);
+    }
+
+    ctx.strokeStyle='rgba(255,255,255,.14)';
+    ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,h-pad.b); ctx.lineTo(w-pad.r,h-pad.b); ctx.stroke();
+
+    function xPos(i){ return pad.l + ((w-pad.l-pad.r) * (n<=1 ? 0 : i/(n-1))); }
+    function yPos(v){ return pad.t + (h-pad.t-pad.b) * (1 - (v-min)/range); }
+
+    for(let i=0;i<n;i++){
+      const x = xPos(i);
+      ctx.fillStyle='#aab6de'; ctx.font='11px sans-serif';
+      ctx.fillText(String(i+1), x-3, h-8);
+    }
+
+    for(const s of series){
+      ctx.strokeStyle = s.color; ctx.lineWidth = 2;
+      ctx.beginPath();
+      s.data.forEach((v,i)=>{
+        const x=xPos(i), y=yPos(v);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+      ctx.fillStyle = s.color;
+      s.data.forEach((v,i)=>{ const x=xPos(i), y=yPos(v); ctx.beginPath(); ctx.arc(x,y,2.8,0,Math.PI*2); ctx.fill(); });
+    }
+  }
+
+  function drawCharts(){
+    const hist = state.history;
+    drawLineChart('chartProfit', [
+      {color:'#7aa7ff', data:hist.map(h=>h.profitA)},
+      {color:'#48d597', data:hist.map(h=>h.profitB)},
+      {color:'#f7c843', data:hist.map(h=>h.profitC)}
+    ], {formatY:v=>'R'+Math.round(v)});
+
+    drawLineChart('chartShare', [
+      {color:'#7aa7ff', data:hist.map(h=>h.shareA*100)},
+      {color:'#48d597', data:hist.map(h=>h.shareB*100)},
+      {color:'#f7c843', data:hist.map(h=>h.shareC*100)}
+    ], {min:0, max:100, formatY:v=>Math.round(v)+'%'});
+
+    drawLineChart('chartPrice', [
+      {color:'#7aa7ff', data:hist.map(h=>h.avgPriceA)},
+      {color:'#48d597', data:hist.map(h=>h.avgPriceB)},
+      {color:'#f7c843', data:hist.map(h=>h.avgPriceC)}
+    ], {formatY:v=>'R'+v.toFixed(1)});
+
+    drawLineChart('chartDemand', [
+      {color:'#7aa7ff', data:hist.map(h=>h.totalSoldA)},
+      {color:'#ff8aa1', data:hist.map(h=>h.totalMarketDemand)}
+    ], {formatY:v=>Math.round(v)});
+
+    drawLineChart('chartInventory', [
+      {color:'#7aa7ff', data:hist.map(h=>h.invA)}
+    ], {min:0, formatY:v=>Math.round(v)});
+  }
+
+  function renderAll(){
+    writePlayerInputs();
+    renderKPI();
+    renderScoreboard();
+    renderMiniBars();
+    renderBreakdown();
+    drawCharts();
+  }
+
+  function logMsg(html){
+    const div=document.createElement('div');
+    div.className='item';
+    div.innerHTML = html;
+    logEl.prepend(div);
+  }
+
+  function aiDecide(shopId){
+    const p = state.params;
+    const s = state.shops[shopId];
+    const targetShare = 1/3;
+    const shareGap = (s.lastShare || targetShare) - targetShare;
+
+    let ad = s.adSpend;
+    if(shareGap < -0.03) ad += 40 * p.aiAgg;
+    if(shareGap > 0.05) ad -= 25 * p.aiAgg;
+    if(s.lastProfit < 0) ad -= 20;
+    ad = clamp(ad, 80, 760);
+
+    const compIds = ['A','B','C'].filter(x=>x!==shopId);
+    for(const f of fruits){
+      const compAvgPrice = compIds.reduce((acc,id)=>acc+state.shops[id].price[f.key],0)/compIds.length;
+      const margin = s.price[f.key] - f.cost;
+      let pNew = s.price[f.key];
+      if(shareGap < -0.03) pNew -= 0.3 * p.aiAgg;
+      else if(shareGap > 0.05) pNew += 0.2 * p.aiAgg;
+      else pNew += 0.05;
+      if(margin < 1.5) pNew += 0.2;
+      pNew += p.noiseChoice * randn();
+      pNew = clamp(pNew, Math.max(f.cost*1.1, compAvgPrice - 3.5), Math.max(f.cost*1.95, compAvgPrice + 3.5));
+      s.price[f.key] = Math.round(pNew*2)/2;
+
+      const adRel = Math.exp(p.beta * ((adToEffect(ad)*s.goodwill) - (compIds.reduce((t,id)=>t+adToEffect(state.shops[id].adSpend)*state.shops[id].goodwill,0)/compIds.length)));
+      const priceRel = Math.exp(-p.alpha * (s.price[f.key] - compAvgPrice));
+      let expectedShare = (priceRel * adRel) / (priceRel * adRel + 2);
+      expectedShare = clamp(expectedShare, 0.15, 0.58);
+      const qTot = Math.max(0, f.baseQ - f.slope * (((s.price[f.key] + compAvgPrice)/2) - f.pRef));
+      const targetSales = qTot * expectedShare;
+      const stockTarget = targetSales * 1.10;
+      const availableNextWeek = s.inv[f.key] + s.pipeline[f.key] * 0.9;
+      let order = Math.max(0, stockTarget - availableNextWeek);
+      s.order[f.key] = Math.round(clamp(order, 0, 99999) / 5) * 5;
+    }
+    s.adSpend = Math.round(ad);
+  }
+
+  function runWeek(){
+    if(state.week > MAX_WEEKS){ logMsg('<b>Game finished.</b> Start a new game to play again.'); return; }
+
+    const p = state.params;
+    readPlayerInputs();
+    aiDecide('B');
+    aiDecide('C');
+
+    for(const shop of Object.values(state.shops)){
+      for(const f of fruits){
+        shop.inv[f.key] += shop.pipeline[f.key];
+        shop.pipeline[f.key] = 0;
+      }
+    }
+
+    const avgP = {};
+    for(const f of fruits){ avgP[f.key] = (state.shops.A.price[f.key] + state.shops.B.price[f.key] + state.shops.C.price[f.key]) / 3; }
+
+    const totalQ = {};
+    for(const f of fruits){
+      let q = f.baseQ - f.slope * (avgP[f.key] - f.pRef) + p.noiseDemand * randn();
+      totalQ[f.key] = clamp(q, 0, f.baseQ * 1.45);
+    }
+
+    const sharesByFruit = {};
+    for(const f of fruits){
+      const U = {};
+      for(const id of ['A','B','C']){
+        const s = state.shops[id];
+        const priceU = -p.alpha * s.price[f.key];
+        const adU = p.beta * Math.log(1 + adToEffect(s.adSpend) * s.goodwill);
+        U[id] = brand[id] + priceU + adU + p.noiseChoice * randn();
+      }
+      const maxU = Math.max(U.A,U.B,U.C);
+      const expA = Math.exp(U.A-maxU), expB = Math.exp(U.B-maxU), expC = Math.exp(U.C-maxU);
+      const denom = expA + expB + expC;
+      sharesByFruit[f.key] = {A:expA/denom, B:expB/denom, C:expC/denom};
+    }
+
+    const sold = {A:{},B:{},C:{}};
+    const desired = {A:{},B:{},C:{}};
+    const totalUnits = {A:0,B:0,C:0};
+    for(const id of ['A','B','C']) for(const f of fruits){ sold[id][f.key]=0; desired[id][f.key]=0; }
+
+    for(const f of fruits){
+      for(const id of ['A','B','C']){
+        const s = state.shops[id];
+        desired[id][f.key] = totalQ[f.key] * sharesByFruit[f.key][id];
+        const canSell = Math.min(desired[id][f.key], s.inv[f.key]);
+        sold[id][f.key] = canSell;
+        s.inv[f.key] -= canSell;
+        totalUnits[id] += canSell;
+      }
+    }
+
+    for(const id of ['A','B','C']){
+      const s = state.shops[id];
+      let revenue=0, cogs=0, spoilCost=0, holdCost=0, purchaseSpend=0;
+      for(const f of fruits){
+        const unitsSold = sold[id][f.key];
+        revenue += unitsSold * s.price[f.key];
+        cogs += unitsSold * f.cost;
+
+        const spoilRate = clamp(f.spoil * p.spoilMult, 0, 0.45);
+        const spoil = Math.round(s.inv[f.key] * spoilRate);
+        s.inv[f.key] -= spoil;
+        spoilCost += spoil * f.cost;
+
+        holdCost += s.inv[f.key] * f.cost * holdingCostRate;
+
+        const ord = s.order[f.key];
+        s.pipeline[f.key] += ord;
+        purchaseSpend += ord * f.cost;
+      }
+
+      const ad = s.adSpend;
+      const overhead = p.overhead;
+      let interest = 0;
+      if(s.cash < 0) interest = -s.cash * loanInterest;
+
+      const profit = revenue - cogs - spoilCost - holdCost - ad - overhead - interest;
+      const cashFlow = profit - purchaseSpend;
+
+      s.cash += cashFlow;
+      s.cumProfit += profit;
+      s.lastProfit = profit;
+      s.lastCashFlow = cashFlow;
+
+      let desiredTotal=0, soldTotal=0;
+      for(const f of fruits){ desiredTotal += desired[id][f.key]; soldTotal += sold[id][f.key]; }
+      const stockoutRate = desiredTotal > 0 ? clamp(1 - soldTotal/desiredTotal, 0, 1) : 0;
+      s.goodwill = clamp(s.goodwill * (1 - p.stockoutPenalty * stockoutRate) + 0.02, 0.72, 1.28);
+
+      const marketUnits = totalUnits.A + totalUnits.B + totalUnits.C;
+      s.lastShare = marketUnits > 0 ? totalUnits[id] / marketUnits : 1/3;
+
+      if(id === 'A'){
+        state.last.breakdownA = { revenue, cogs, spoilCost, holdCost, ad, overhead, interest, purchaseSpend, profit, cashFlow };
+      }
+    }
+
+    state.last.shareA = state.shops.A.lastShare;
+    state.last.profitA = state.shops.A.lastProfit;
+    state.last.cashFlowA = state.shops.A.lastCashFlow;
+    state.last.soldA = Object.fromEntries(fruits.map(f=>[f.key, sold.A[f.key]]));
+    state.last.marketQ = Object.fromEntries(fruits.map(f=>[f.key, totalQ[f.key]]));
+
+    const A = state.shops.A, B = state.shops.B, C = state.shops.C;
+    const avgPriceAll = Object.values(avgP).reduce((a,b)=>a+b,0)/fruits.length;
+    const totalDemandAll = Object.values(totalQ).reduce((a,b)=>a+b,0);
+    const totalSoldA = Object.values(sold.A).reduce((a,b)=>a+b,0);
+
+    pushHistory({
+      week: state.week,
+      profitA:A.lastProfit, profitB:B.lastProfit, profitC:C.lastProfit,
+      shareA:A.lastShare, shareB:B.lastShare, shareC:C.lastShare,
+      avgPriceA:getAvgPrice('A'), avgPriceB:getAvgPrice('B'), avgPriceC:getAvgPrice('C'),
+      totalMarketDemand: totalDemandAll,
+      totalSoldA: totalSoldA,
+      invA:getInvTotal('A')
+    });
+
+    logMsg(`
+      <b>Week ${state.week}</b> • Avg market price: <span class="mono">${avgPriceAll.toFixed(1)}</span> • Total demand: <span class="mono">${Math.round(totalDemandAll)}</span><br>
+      <span class="chip">Shop A</span> profit <b class="mono">${fmtR(A.lastProfit)}</b>, cash flow <b class="mono">${fmtR(A.lastCashFlow)}</b>, share <b class="mono">${Math.round(A.lastShare*100)}%</b><br>
+      <span class="chip">Shop B</span> profit <span class="mono">${fmtR(B.lastProfit)}</span>, share <span class="mono">${Math.round(B.lastShare*100)}%</span>
+      <span class="chip">Shop C</span> profit <span class="mono">${fmtR(C.lastProfit)}</span>, share <span class="mono">${Math.round(C.lastShare*100)}%</span><br>
+      <small class="mono" style="color:var(--muted)">Teaching cue: lower prices mainly move you along demand; higher ads mainly shift demand toward your shop.</small>`);
+
+    state.week += 1;
+    if(state.week > MAX_WEEKS){
+      const winner = Object.values(state.shops).slice().sort((a,b)=>b.cumProfit-a.cumProfit)[0];
+      logMsg('<b>Finished.</b> Winner: <b>Shop ' + winner.id + '</b> with cumulative profit <b class="mono">' + fmtR(winner.cumProfit) + '</b>.');
+      el('btnNext').textContent = 'Game Finished';
+      el('btnNext').disabled = true;
+      if(el('btnNextDesktop')){ el('btnNextDesktop').textContent = 'Game Finished'; el('btnNextDesktop').disabled = true; }
+    }
+
+    renderAll();
+  }
+
+  el('btnNext').addEventListener('click', runWeek);
+  if(el('btnNextDesktop')) el('btnNextDesktop').addEventListener('click', runWeek);
+  el('btnNew').addEventListener('click', ()=>{ if(confirm('Start a new game? This will reset the current run.')) newGame(); });
+  el('btnReset').addEventListener('click', ()=>{ if(confirm('Hard reset?')) location.reload(); });
+  el('difficulty').addEventListener('change', ()=>{ el('difficultyPill').textContent = currentDiff().label; });
+
+  buildDecisionRows();
+  newGame();
+})();
+</script>
+</body>
+</html>
