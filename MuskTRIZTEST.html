@@ -3,91 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duck.ai Integration Test</title>
+    <title>Duck.ai Integration Test - Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: system-ui, sans-serif; }
-        .response { white-space: pre-wrap; }
+        .response { white-space: pre-wrap; line-height: 1.6; }
     </style>
 </head>
 <body class="bg-zinc-950 text-white p-8">
 
 <div class="max-w-2xl mx-auto">
-    <h1 class="text-3xl font-bold mb-2">Duck.ai Integration Test</h1>
-    <p class="text-emerald-400 mb-8">Testing community library: @mumulhl/duckduckgo-ai-chat</p>
+    <h1 class="text-3xl font-bold mb-2">Duck.ai Integration Test (Fixed Version)</h1>
+    <p class="text-emerald-400 mb-8">Using direct fetch to DuckDuckGo AI backend (no external library needed for basic testing)</p>
 
     <div class="mb-6">
-        <label class="block text-sm mb-2">Your Test Message:</label>
-        <textarea id="prompt" rows="3" 
-                  class="w-full bg-zinc-900 border border-white/20 rounded-2xl p-4 focus:outline-none focus:border-emerald-400"
-                  placeholder="Hello, what is the capital of France?">What are the main benefits of combining TRIZ with first-principles thinking?</textarea>
+        <label class="block text-sm mb-2 font-medium">Test Prompt:</label>
+        <textarea id="prompt" rows="4" 
+                  class="w-full bg-zinc-900 border border-white/20 rounded-2xl p-5 focus:outline-none focus:border-emerald-400 text-base"
+                  placeholder="Type your message here...">Explain the main benefits of combining TRIZ inventive principles with Elon Musk's first-principles thinking.</textarea>
     </div>
 
     <div class="flex gap-4 mb-8">
         <button onclick="sendToDuckAI()" 
-                class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold py-4 rounded-2xl transition">
-            Send to Duck.ai (Real AI)
+                class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold py-4 rounded-2xl transition-all active:scale-95">
+            🚀 Send to Duck.ai
         </button>
         
         <button onclick="clearResponse()" 
-                class="px-6 border border-white/30 hover:border-white/50 rounded-2xl transition">
+                class="px-8 border border-white/30 hover:border-white/60 rounded-2xl transition">
             Clear
         </button>
     </div>
 
-    <div id="status" class="text-sm mb-4 text-zinc-400"></div>
+    <div id="status" class="text-sm mb-4 min-h-[24px]"></div>
     
-    <div id="response" class="bg-zinc-900 border border-white/10 rounded-3xl p-6 response text-zinc-300 min-h-[150px]"></div>
+    <div id="response" class="bg-zinc-900 border border-white/10 rounded-3xl p-7 response text-zinc-300 min-h-[180px] text-base"></div>
 </div>
 
-<!-- Import the library via JSR (works in modern browsers) -->
-<script type="module">
-    import { initChat } from "https://jsr.io/@mumulhl/duckduckgo-ai-chat/3.3.0/mod.js";
-
-    let chatInstance = null;
-
-    async function initDuckChat() {
-        if (!chatInstance) {
-            chatInstance = await initChat({
-                model: "gpt-4o-mini"   // Try "claude-3-haiku", "llama", "o3-mini" etc.
-            });
-        }
-        return chatInstance;
+<script>
+// Direct DuckDuckGo AI Chat implementation (works in browser without external modules)
+async function sendToDuckAI() {
+    const promptEl = document.getElementById('prompt');
+    const statusEl = document.getElementById('status');
+    const responseEl = document.getElementById('response');
+    
+    const prompt = promptEl.value.trim();
+    if (!prompt) {
+        statusEl.innerHTML = '<span class="text-rose-400">Please enter a prompt first.</span>';
+        return;
     }
 
-    window.sendToDuckAI = async function() {
-        const prompt = document.getElementById('prompt').value.trim();
-        const statusEl = document.getElementById('status');
-        const responseEl = document.getElementById('response');
+    statusEl.innerHTML = '<span class="text-emerald-400">Connecting to Duck.ai...</span>';
+    responseEl.innerHTML = '<span class="text-zinc-500">Thinking with real AI...</span>';
 
-        if (!prompt) {
-            statusEl.textContent = "Please enter a message.";
-            return;
-        }
+    try {
+        // Simple fetch-based call to DuckDuckGo AI (reverse-engineered public endpoint pattern)
+        const res = await fetch('https://duckduckgo.com/aichat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (compatible; DuckAI-Test)'
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini",   // Change to "claude-3-haiku" or "llama" if you want
+                messages: [
+                    { role: "user", content: prompt }
+                ]
+            })
+        });
 
-        statusEl.innerHTML = `<span class="text-emerald-400">Connecting to Duck.ai...</span>`;
-        responseEl.textContent = "Thinking...";
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        try {
-            const chat = await initDuckChat();
-            
-            // Send message and get response
-            const result = await chat.sendMessage(prompt);
-            
-            responseEl.textContent = result || "No response received.";
-            statusEl.innerHTML = `<span class="text-emerald-400">✓ Response received from Duck.ai (${chat.model || 'gpt-4o-mini'})</span>`;
-            
-        } catch (err) {
-            console.error(err);
-            responseEl.innerHTML = `<span class="text-rose-400">Error: ${err.message || 'Failed to connect to Duck.ai'}</span><br><br>Tip: Try refreshing the page or test in another browser.`;
-            statusEl.textContent = "Connection failed";
-        }
-    };
+        const data = await res.json();
+        const answer = data.message || data.response || data.answer || "No response text received.";
 
-    window.clearResponse = function() {
-        document.getElementById('response').textContent = '';
-        document.getElementById('status').textContent = '';
-    };
+        responseEl.textContent = answer;
+        statusEl.innerHTML = `<span class="text-emerald-400">✅ Response received from Duck.ai (gpt-4o-mini)</span>`;
+        
+    } catch (err) {
+        console.error(err);
+        responseEl.innerHTML = `<span class="text-rose-400">Connection failed: ${err.message}</span><br><br>
+            <span class="text-sm">Tip: This often happens due to rate limits or DuckDuckGo blocking the request.<br>
+            Try again in 30 seconds or open <a href="https://duck.ai" target="_blank" class="underline">duck.ai</a> manually.</span>`;
+        statusEl.innerHTML = '<span class="text-rose-400">Failed to connect</span>';
+    }
+}
+
+function clearResponse() {
+    document.getElementById('response').innerHTML = '';
+    document.getElementById('status').innerHTML = '';
+}
+
+// Allow pressing Enter to send
+document.getElementById('prompt').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendToDuckAI();
+    }
+});
 </script>
 
 </body>
