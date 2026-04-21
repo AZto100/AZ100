@@ -636,13 +636,13 @@ if (found && hasElectricity) {
       const best = (document.getElementById('bestFinal').value || '').trim().toUpperCase();
       const net = normaliseNumber(document.getElementById('netFinal').value);
       const okBest = best === 'C1';
-      const okNet = isClose(net, 325000);
+      const okNet = isClose(net, 230000);
 
       if (okBest && okNet) {
         if (!state.solved4) addScore(18);
         state.solved4 = true;
         state.stage = 4;
-        setFeedback('fb4', 'Excellent. After tracing electricity, <strong>C1</strong> becomes optimal. Using all 250,000 labour on C1 gives 2.5 lots, and the new net profit is <strong>325,000</strong>. <br><br><strong>Congratulations — challenge completed.</strong>', 'ok');
+        setFeedback('fb4', 'Excellent. After tracing electricity, <strong>C1</strong> becomes optimal. Using all 250,000 labour on C1 gives 2.5 lots, and the new net profit is <strong>230,000</strong>. <br><br><strong>Congratulations — challenge completed.</strong>', 'ok');
         saveState();
       } else {
         let msg = 'Not yet correct.';
