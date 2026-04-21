@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Chemical Management Challenge</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #17324d;
+      --muted: #5f7388;
+      --primary: #1565c0;
+      --primary-2: #0d47a1;
+      --success: #1b8f4d;
+      --warn: #d97706;
+      --danger: #c62828;
+      --border: #d9e2ec;
+      --soft: #eef4fb;
+      --shadow: 0 10px 24px rgba(23,50,77,0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+    body { min-height: 100vh; }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 12px 12px 110px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      padding: 18px;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      margin: 80px 0 14px;
+    }
+
+    .hero h1 {
+      font-size: 1.4rem;
+      line-height: 1.2;
+      margin: 0 0 8px;
+    }
+
+    .hero p {
+      margin: 0;
+      font-size: 0.95rem;
+      opacity: 0.96;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .mini {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .mini .label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-bottom: 6px;
+    }
+
+    .mini .value {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .progress-card, .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #e5edf6;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #42a5f5, #1565c0);
+      transition: width 0.35s ease;
+    }
+
+    .card h2 {
+      font-size: 1.08rem;
+      margin: 0 0 8px;
+    }
+
+    .card h3 {
+      font-size: 0.98rem;
+      margin: 14px 0 8px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fbfdff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 420px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      font-size: 0.94rem;
+    }
+
+    th:first-child, td:first-child { text-align: left; }
+    tr:last-child td { border-bottom: none; }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    input[type="number"], textarea {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid #bfd0e0;
+      border-radius: 12px;
+      font-size: 1rem;
+      background: white;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 46px;
+    }
+
+    .primary { background: var(--primary); color: white; }
+    .primary:hover { background: var(--primary-2); }
+    .secondary { background: #eaf2fb; color: var(--primary-2); }
+    .danger { background: #fdeaea; color: var(--danger); }
+    .ghost { background: #f3f6f9; color: var(--text); }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      display: none;
+    }
+
+    .ok { background: #e9f8ef; color: #13683b; border: 1px solid #b9e6c8; display: block; }
+    .bad { background: #fff4e8; color: #9a5b06; border: 1px solid #ffd6a8; display: block; }
+    .tip { background: #eef5ff; color: #184e96; border: 1px solid #cfe0fb; display: block; }
+
+    .locked { display: none; }
+    .pill {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 0.77rem;
+      font-weight: 700;
+      background: #edf4fb;
+      color: var(--primary-2);
+      margin-bottom: 8px;
+    }
+
+    .sticky-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(244,247,251,0.96);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+    }
+
+    .sticky-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .sticky-note {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .formula {
+      background: var(--soft);
+      border: 1px solid #d7e6f5;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.92rem;
+      margin-top: 8px;
+    }
+
+    .star {
+      color: #e3a008;
+      font-weight: 700;
+    }
+
+    @media (min-width: 700px) {
+      .input-grid.two { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sticky-bar">
+    <div class="sticky-inner">
+      <div class="sticky-note" id="stickyNote">Start with gross profit for each chemical line.</div>
+      <button class="ghost" onclick="saveStateManual()">Save</button>
+      <button class="danger" onclick="resetGame()">Reset</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Chemical Management Challenge</h1>
+      <p>Work through the profit logic step by step. Each correct stage unlocks the next decision. Your progress is saved on this device.</p>
+    </section>
+
+    <section class="status-grid">
+      <div class="mini">
+        <div class="label">Score</div>
+        <div class="value" id="scoreBox">0</div>
+      </div>
+      <div class="mini">
+        <div class="label">Stage</div>
+        <div class="value" id="stageBox">1 / 4</div>
+      </div>
+      <div class="mini">
+        <div class="label">Hints used</div>
+        <div class="value" id="hintsBox">0</div>
+      </div>
+    </section>
+
+    <section class="progress-card">
+      <div><strong>Progress</strong></div>
+      <div class="muted" id="progressText">Complete the first profit calculations.</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </section>
+
+    <section class="card">
+      <span class="pill">Scenario</span>
+      <h2>Starting information</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Item</th><th>C1</th><th>C2</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Raw material</td><td>90,000</td><td>110,000</td></tr>
+            <tr><td>Labour</td><td>100,000</td><td>145,000</td></tr>
+            <tr><td>Revenue</td><td>510,000</td><td>720,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Additional common costs</h3>
+      <div class="table-wrap">
+        <table>
+          <tbody>
+            <tr><td>Management salaries</td><td>150,000</td></tr>
+            <tr><td>Water</td><td>10,000</td></tr>
+            <tr><td>Electricity</td><td>350,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="formula"><strong>Remember:</strong> Gross profit here means revenue minus direct product costs. Net profit subtracts the extra common costs as well.</div>
+    </section>
+
+    <section class="card" id="part1">
+      <span class="pill">Part 1</span>
+      <h2>Calculate the first answers</h2>
+      <p class="muted">Find gross profit for C1, gross profit for C2, and the current net profit if both lines are produced as given.</p>
+      <div class="input-grid two">
+        <div>
+          <label for="gp1">Gross profit C1</label>
+          <input id="gp1" type="number" inputmode="numeric" placeholder="e.g. 10000" />
+        </div>
+        <div>
+          <label for="gp2">Gross profit C2</label>
+          <input id="gp2" type="number" inputmode="numeric" placeholder="e.g. 10000" />
+        </div>
+        <div>
+          <label for="net1">Net profit</label>
+          <input id="net1" type="number" inputmode="numeric" placeholder="e.g. 10000" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="primary" onclick="checkPart1()">Check Part 1</button>
+        <button class="secondary" onclick="hint(1)">Hint</button>
+      </div>
+      <div id="fb1" class="feedback"></div>
+    </section>
+
+    <section class="card locked" id="part2">
+      <span class="pill">Part 2</span>
+      <h2>Optimise with labour as the constraint</h2>
+      <p class="muted">Marketing says all output can be sold. Manufacturing says qualified labour is limited to the current hours. Ignore other potential constraints and optimise using the current product economics only.</p>
+      <div class="input-grid two">
+        <div>
+          <label for="bestNow">Which product should be prioritised if they are currently producing 1000 litres of each?</label>
+          <input id="bestNow" type="text" placeholder="C1 or C2" />
+        </div>
+        <div>
+          <label for="net2">Net profit after optimisation</label>
+          <input id="net2" type="number" inputmode="numeric" placeholder="e.g. 10000" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="primary" onclick="checkPart2()">Check Part 2</button>
+        <button class="secondary" onclick="hint(2)">Hint</button>
+      </div>
+      <div id="fb2" class="feedback"></div>
+    </section>
+
+    <section class="card locked" id="part3">
+      <span class="pill">Part 3</span>
+      <h2>What should management do next?</h2>
+      <p class="muted">Open-ended question: before committing to the decision, what would you investigate next as an industrial engineer or manager?</p>
+      <label for="openText">Your answer</label>
+      <textarea id="openText" placeholder="Describe your next steps..."></textarea>
+      <div class="btn-row">
+        <button class="primary" onclick="checkPart3()">Submit reflection</button>
+        <button class="secondary" onclick="hint(3)">Hint</button>
+      </div>
+      <div id="fb3" class="feedback"></div>
+    </section>
+
+    <section class="card locked" id="part4">
+      <span class="pill">Final Part</span>
+      <h2>New information: electricity is not shared equally</h2>
+      <div class="table-wrap">
+        <table>
+          <tbody>
+            <tr><td>C2 electricity use</td><td>200,000</td></tr>
+            <tr><td>C1 electricity use</td><td>40,000</td></tr>
+            <tr><td>Office electricity</td><td>10,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">Now redo the decision using this better cost information. Find the new optimal product and the new net profit.</p>
+      <div class="input-grid two">
+        <div>
+          <label for="bestFinal">New optimal product</label>
+          <input id="bestFinal" type="text" placeholder="C1 or C2" />
+        </div>
+        <div>
+          <label for="netFinal">New net profit</label>
+          <input id="netFinal" type="number" inputmode="numeric" placeholder="e.g. 10000" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="primary" onclick="checkPart4()">Finish challenge</button>
+        <button class="secondary" onclick="hint(4)">Hint</button>
+      </div>
+      <div id="fb4" class="feedback"></div>
+    </section>
+  </div>
+
+  
+
+  <script>
+    const STORE_KEY = 'chemical_management_game_mobile_v1';
+    const state = {
+      score: 0,
+      stage: 1,
+      hintsUsed: 0,
+      solved1: false,
+      solved2: false,
+      solved3: false,
+      solved4: false,
+      answers: {}
+    };
+
+    const hintText = {
+      1: [
+        'Gross profit per product uses revenue minus raw material minus labour.',
+        'Then combine both gross profits and subtract management salaries, water, and electricity to get net profit.'
+      ],
+      2: [
+        'Labour is the scarce resource, so compare contribution per labour rand.',
+        'Using all 245,000 labour on C2 gives 245,000 / 145,000 = 1.6897 lots or 1689.7 litres.'
+      ],
+      3: [
+        'Think about whether all overheads are truly shared equally or whether some should be traced to products.',
+        'Words around electricity, measurement, allocation, activity-based costing, or cost drivers should help.'
+      ],
+      4: [
+        'Recalculate each product with traced electricity. C1 gets 80,000 and C2 gets 260,000.',
+        'With 245,000 labour available, all labour on C1 means 2.45 lots or 2450 litres.'
+      ]
+    };
+
+    function normaliseNumber(v) {
+      return Number(String(v).replace(/[,\s]/g, ''));
+    }
+
+    function isClose(actual, expected) {
+      return Math.abs(actual - expected) < 1;
+    }
+
+    function setFeedback(id, msg, mode) {
+      const el = document.getElementById(id);
+      el.className = 'feedback ' + mode;
+      el.innerHTML = msg;
+    }
+
+    function saveState() {
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      render();
+    }
+
+    function saveStateManual() {
+      captureInputs();
+      saveState();
+      const note = document.getElementById('stickyNote');
+      note.textContent = 'Progress saved on this device.';
+      setTimeout(render, 1400);
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        Object.assign(state, parsed || {});
+      } catch (e) {}
+    }
+
+    function captureInputs() {
+      state.answers.gp1 = document.getElementById('gp1').value;
+      state.answers.gp2 = document.getElementById('gp2').value;
+      state.answers.net1 = document.getElementById('net1').value;
+      state.answers.bestNow = document.getElementById('bestNow').value;
+      state.answers.net2 = document.getElementById('net2').value;
+      state.answers.openText = document.getElementById('openText').value;
+      state.answers.bestFinal = document.getElementById('bestFinal').value;
+      state.answers.netFinal = document.getElementById('netFinal').value;
+    }
+
+    function restoreInputs() {
+      document.getElementById('gp1').value = state.answers.gp1 || '';
+      document.getElementById('gp2').value = state.answers.gp2 || '';
+      document.getElementById('net1').value = state.answers.net1 || '';
+      document.getElementById('bestNow').value = state.answers.bestNow || '';
+      document.getElementById('net2').value = state.answers.net2 || '';
+      document.getElementById('openText').value = state.answers.openText || '';
+      document.getElementById('bestFinal').value = state.answers.bestFinal || '';
+      document.getElementById('netFinal').value = state.answers.netFinal || '';
+    }
+
+    function render() {
+      document.getElementById('scoreBox').textContent = state.score;
+      document.getElementById('stageBox').textContent = state.stage + ' / 4';
+      document.getElementById('hintsBox').textContent = state.hintsUsed;
+
+      document.getElementById('part2').style.display = state.stage >= 2 ? 'block' : 'none';
+      document.getElementById('part3').style.display = state.stage >= 3 ? 'block' : 'none';
+      document.getElementById('part4').style.display = state.stage >= 4 ? 'block' : 'none';
+
+      const progress = ((state.stage - 1) / 4) * 100 + (state.solved4 ? 25 : 0);
+      document.getElementById('progressFill').style.width = Math.min(progress, 100) + '%';
+
+      let txt = 'Complete the first profit calculations.';
+      let sticky = 'Start with gross profit for each chemical line.';
+      if (state.stage === 2) {
+        txt = 'Now optimise with labour as the scarce resource.';
+        sticky = 'Compare contribution per unit of labour.';
+      }
+      if (state.stage === 3) {
+        txt = 'Reflect on what cost information should be improved next.';
+        sticky = 'Think about cost tracing and better measurement.';
+      }
+      if (state.stage === 4) {
+        txt = 'Electricity has been traced. Recalculate the real optimum.';
+        sticky = state.solved4 ? 'Well done. You completed the challenge.' : 'Use traced electricity to revise the decision.';
+      }
+      if (state.solved4) txt = 'Challenge complete. Great work.';
+
+      document.getElementById('progressText').textContent = txt;
+      document.getElementById('stickyNote').textContent = sticky;
+      restoreInputs();
+    }
+
+    function addScore(points) {
+      state.score += points;
+      saveState();
+    }
+
+    function hint(part) {
+      state.hintsUsed += 1;
+      state.score = Math.max(0, state.score - 2);
+      const msgs = hintText[part] || ['Keep going.'];
+      const boxId = 'fb' + part;
+      setFeedback(boxId, '<span class="star">Hint:</span> ' + msgs.join('<br><br>'), 'tip');
+      saveState();
+    }
+
+    function checkPart1() {
+      captureInputs();
+      const gp1 = normaliseNumber(document.getElementById('gp1').value);
+      const gp2 = normaliseNumber(document.getElementById('gp2').value);
+      const net1 = normaliseNumber(document.getElementById('net1').value);
+
+      const ok1 = isClose(gp1, 320000);
+      const ok2 = isClose(gp2, 465000);
+      const ok3 = isClose(net1, 275000);
+
+      if (ok1 && ok2 && ok3) {
+        if (!state.solved1) addScore(10);
+        state.solved1 = true;
+        state.stage = Math.max(state.stage, 2);
+        setFeedback('fb1', 'Correct. C1 gross profit is <strong>320,000</strong>, C2 gross profit is <strong>465,000</strong>, and current net profit is <strong>275,000</strong>. Part 2 is now unlocked.', 'ok');
+        saveState();
+      } else {
+        let msg = 'Not quite yet.';
+        if (!ok1) msg += ' Recheck C1: revenue minus raw material minus labour.';
+        if (ok1 && !ok2) msg += ' Recheck C2 with the same structure.';
+        if (ok1 && ok2 && !ok3) msg += ' Net profit must subtract all common costs after combining the two gross profits.';
+        setFeedback('fb1', msg, 'bad');
+        saveState();
+      }
+    }
+
+    function checkPart2() {
+      captureInputs();
+      const best = (document.getElementById('bestNow').value || '').trim().toUpperCase();
+      const net2 = normaliseNumber(document.getElementById('net2').value);
+      const okBest = best === 'C2';
+      const okNet = isClose(net2, 275689.7);
+
+      if (okBest && okNet) {
+        if (!state.solved2) addScore(12);
+        state.solved2 = true;
+        state.stage = Math.max(state.stage, 3);
+        setFeedback('fb2', 'Correct. Before tracing electricity, <strong>C2</strong> looks best because it gives more contribution per unit of scarce labour. The resulting net profit is <strong>275,689.7</strong>. Part 3 is now unlocked.', 'ok');
+        saveState();
+      } else {
+        let msg = 'Close, but revisit the scarce-resource logic.';
+        if (!okBest) msg += ' Compare contribution per labour rand, not only total contribution per lot.';
+        if (!okNet) msg += ' Use all 245,000 labour on the selected product, then subtract the common costs.';
+        setFeedback('fb2', msg, 'bad');
+        saveState();
+      }
+    }
+
+    function checkPart3() {
+      captureInputs();
+      const txt = (document.getElementById('openText').value || '').toLowerCase();
+      const keywords = [
+        'measure','measurement','allocate','allocation','trace','tracing',
+        'cost driver','activity','overhead','meter','usage','apportion'
+      ];
+      const found = keywords.some(k => txt.includes(k));
+      const hasElectricity =
+        txt.includes("electricity") ||
+        txt.includes("power") ||
+        txt.includes("energy");
+
+if (found && hasElectricity) {
+        if (!state.solved3) addScore(14);
+        state.solved3 = true;
+        state.stage = Math.max(state.stage, 4);
+        setFeedback('fb3', 'Good thinking. The next step is to improve how overhead is <strong>measured and allocated</strong>, especially electricity. The final part is now unlocked.', 'ok');
+        saveState();
+      } else {
+        setFeedback('fb3', 'Your answer has some value, but it does not yet focus on the missing cost-information problem. Look for issues around tracing, measuring, or allocating electricity or overheads more accurately.', 'bad');
+        saveState();
+      }
+    }
+
+    function checkPart4() {
+      captureInputs();
+      const best = (document.getElementById('bestFinal').value || '').trim().toUpperCase();
+      const net = normaliseNumber(document.getElementById('netFinal').value);
+      const okBest = best === 'C1';
+      const okNet = isClose(net, 418000);
+
+      if (okBest && okNet) {
+        if (!state.solved4) addScore(18);
+        state.solved4 = true;
+        state.stage = 4;
+        setFeedback('fb4', 'Excellent. After tracing electricity, <strong>C1</strong> becomes optimal. Using all 245,000 labour on C1 gives 2.45 lots, and the new net profit is <strong>418,000</strong>. <br><br><strong>Congratulations — challenge completed.</strong>', 'ok');
+        saveState();
+      } else {
+        let msg = 'Not yet correct.';
+        if (!okBest) msg += ' Recalculate product economics after assigning electricity properly.';
+        if (!okNet) msg += ' Use the revised best product, scale to the full 245,000 labour limit, then subtract only the office electricity and management salaries and water that remain common.';
+        setFeedback('fb4', msg, 'bad');
+        saveState();
+      }
+    }
+
+    function resetGame() {
+      localStorage.removeItem(STORE_KEY);
+      location.reload();
+    }
+
+    loadState();
+    window.addEventListener('input', () => {
+      captureInputs();
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    });
+    render();
+  </script>
+</body>
+</html>
